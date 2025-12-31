@@ -11,6 +11,7 @@ IMAGE_PULL_SECRET_NAME=${IMAGE_PULL_SECRET_NAME:-ghcr-pull}
 USE_IMAGE_PULL_SECRET=${USE_IMAGE_PULL_SECRET:-false}
 E2E_DEPS=${E2E_DEPS:-false}
 E2E_RESET=${E2E_RESET:-true}
+E2E_SCM_MODE=${E2E_SCM_MODE:-github}
 
 if [ -z "${KUBECONFIG:-}" ] && [ -f "${SCRIPT_DIR}/kubeconfig" ]; then
   export KUBECONFIG="${SCRIPT_DIR}/kubeconfig"
@@ -18,14 +19,22 @@ fi
 
 if [ "${E2E_RESET}" = "true" ]; then
   kubectl delete namespace tasks --ignore-not-found
+  helm -n "${NAMESPACE}" uninstall "${RELEASE_NAME}" >/dev/null 2>&1 || true
 fi
 
 kubectl create namespace "${NAMESPACE}" --dry-run=client -o yaml | kubectl apply -f -
 
-if [ -f "${SCRIPT_DIR}/e2e-secrets.yaml" ]; then
-  kubectl -n "${NAMESPACE}" apply -f "${SCRIPT_DIR}/e2e-secrets.yaml"
+SECRETS_FILE="${SCRIPT_DIR}/e2e-secrets.yaml"
+VALUES_ARGS=(--values "${SCRIPT_DIR}/e2e-values.yaml")
+if [ "${E2E_SCM_MODE}" = "gitlab" ]; then
+  SECRETS_FILE="${SCRIPT_DIR}/e2e-secrets-gitlab.yaml"
+  VALUES_ARGS+=(--values "${SCRIPT_DIR}/e2e-values-gitlab.yaml")
+fi
+
+if [ -f "${SECRETS_FILE}" ]; then
+  kubectl -n "${NAMESPACE}" apply -f "${SECRETS_FILE}"
 else
-  echo "e2e-secrets.yaml not found; skipping secret creation."
+  echo "e2e secrets file not found; skipping secret creation."
 fi
 
 if [ -n "${GHCR_USERNAME:-}" ] && [ -n "${GHCR_TOKEN:-}" ]; then
@@ -48,7 +57,7 @@ fi
 
 helm upgrade --install "${RELEASE_NAME}" "${CHART_DIR}" \
   --namespace "${NAMESPACE}" \
-  --values "${SCRIPT_DIR}/e2e-values.yaml" \
+  "${VALUES_ARGS[@]}" \
   $([ "${USE_IMAGE_PULL_SECRET}" = "true" ] && echo "--set global.imagePullSecrets[0]=${IMAGE_PULL_SECRET_NAME}")
 
 kubectl -n "${NAMESPACE}" wait --for=condition=Available deployment \

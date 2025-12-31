@@ -11,3 +11,10 @@
 {{- if ne $bowTag $quakTag -}}
 {{- fail (printf "bow.image.tag (%s) and quak.image.tag (%s) must match; set global.image.tag to enforce a single version" $bowTag $quakTag) -}}
 {{- end -}}
+{{- $scmMode := .Values.scm.mode | default "github" -}}
+{{- if not (or (eq $scmMode "github") (eq $scmMode "gitlab")) -}}
+{{- fail (printf "scm.mode must be one of [github, gitlab], got %s" $scmMode) -}}
+{{- end -}}
+{{- if and (eq $scmMode "gitlab") (or (not .Values.scm.gitlab.patSecretName) (eq (.Values.scm.gitlab.patSecretName | trim) "")) -}}
+{{- fail "scm.gitlab.patSecretName must be set when scm.mode=gitlab" -}}
+{{- end -}}

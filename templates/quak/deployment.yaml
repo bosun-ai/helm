@@ -80,9 +80,17 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "bosun.componentFullname" (dict "root" . "component" "quak") }}-env
+{{- $githubSecret := .Values.scm.github.secretName }}
 {{- range .Values.quak.secrets.existing }}
+{{- if and (eq $.Values.scm.mode "gitlab") (eq . $githubSecret) }}
+{{- else }}
             - secretRef:
                 name: {{ . }}
+{{- end }}
+{{- end }}
+{{- if eq .Values.scm.mode "gitlab" }}
+            - secretRef:
+                name: {{ .Values.scm.gitlab.patSecretName }}
 {{- end }}
           ports:
             - name: http

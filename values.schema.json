@@ -30,6 +30,29 @@
     },
     "nameOverride": { "type": "string" },
     "fullnameOverride": { "type": "string" },
+    "scm": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": { "type": "string", "enum": ["github", "gitlab"] },
+        "github": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "secretName": { "type": "string" }
+          }
+        },
+        "gitlab": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "patSecretName": { "type": "string" },
+            "patSecretKey": { "type": "string" },
+            "apiEndpoint": { "type": "string" }
+          }
+        }
+      }
+    },
     "bow": {
       "type": "object",
       "additionalProperties": false,

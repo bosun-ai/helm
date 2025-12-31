@@ -17,3 +17,7 @@ To use external services instead, set:
   redis.enabled=false
   qdrant.enabled=false
 and provide URLs via values (stern.env / quak.env / stern.database).
+
+SCM mode is mutually exclusive:
+  scm.mode=github (default) uses github-secrets
+  scm.mode=gitlab requires a GITLAB_PAT secret (scm.gitlab.patSecretName)

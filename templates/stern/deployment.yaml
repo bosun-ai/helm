@@ -76,9 +76,17 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "bosun.componentFullname" (dict "root" . "component" "stern") }}-env
+{{- $githubSecret := .Values.scm.github.secretName }}
 {{- range .Values.stern.secrets.existing }}
+{{- if and (eq $.Values.scm.mode "gitlab") (eq . $githubSecret) }}
+{{- else }}
             - secretRef:
                 name: {{ . }}
+{{- end }}
+{{- end }}
+{{- if eq .Values.scm.mode "gitlab" }}
+            - secretRef:
+                name: {{ .Values.scm.gitlab.patSecretName }}
 {{- end }}
 {{- $postgresSecretName := default (printf "%s-auth" (include "bosun.componentFullname" (dict "root" . "component" "postgres"))) .Values.postgres.auth.existingSecret }}
 {{- if or .Values.stern.database.url .Values.stern.database.existingSecret .Values.postgres.enabled }}

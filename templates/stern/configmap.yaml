@@ -23,6 +23,10 @@ data:
 {{- $_ := set $env "REDIS_URL" (default (printf "redis://%s:%d" $redisService (int .Values.redis.shared.service.port)) (get $userEnv "REDIS_URL")) }}
 {{- $_ := set $env "QUAK_URL" (default (printf "http://%s:%d" $quakService (int .Values.quak.service.port)) (get $userEnv "QUAK_URL")) }}
 {{- $_ := set $env "ROOT_URL" (default (printf "http://%s:%d" $sternService (int .Values.stern.service.port)) (get $userEnv "ROOT_URL")) }}
+{{- if eq .Values.scm.mode "gitlab" }}
+{{- $_ := set $env "GITLAB_API_ENDPOINT" (default .Values.scm.gitlab.apiEndpoint (get $userEnv "GITLAB_API_ENDPOINT")) }}
+{{- $_ := set $env "AUTHENTICATION_DISABLED" (default "true" (get $userEnv "AUTHENTICATION_DISABLED")) }}
+{{- end }}
 {{- if $env }}
 {{- range $key, $value := $env }}
   {{ $key }}: {{ $value | quote }}

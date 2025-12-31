@@ -1,0 +1,21 @@
+suite: scm github mode
+templates:
+  - stern/deployment.yaml
+  - stern/configmap.yaml
+  - quak/deployment.yaml
+  - quak/configmap.yaml
+  - bow/configmap.yaml
+tests:
+  - it: includes github secrets by default
+    template: stern/deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: github-secrets
+  - it: does not force auth disabled by default
+    template: bow/configmap.yaml
+    asserts:
+      - notExists:
+          path: data.AUTHENTICATION_DISABLED

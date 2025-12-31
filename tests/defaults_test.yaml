@@ -35,6 +35,17 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.key
           value: baseUrl
+  - it: injects gitlab pat secret and skips github secret in gitlab mode
+    template: stern/deployment.yaml
+    set:
+      scm.mode: gitlab
+      scm.gitlab.patSecretName: gitlab-pat
+      stern.secrets.existing:
+        - github-secrets
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].envFrom[1].secretRef.name
+          value: gitlab-pat
 
 ---
 suite: quak deployment
@@ -50,6 +61,17 @@ tests:
       - equal:
           path: metadata.name
           value: RELEASE-NAME-bosun-quak
+  - it: injects gitlab pat secret and skips github secret in gitlab mode
+    template: quak/deployment.yaml
+    set:
+      scm.mode: gitlab
+      scm.gitlab.patSecretName: gitlab-pat
+      quak.secrets.existing:
+        - github-secrets
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].envFrom[1].secretRef.name
+          value: gitlab-pat
 
 ---
 suite: billing worker

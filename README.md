@@ -45,6 +45,39 @@ The chart assumes most secrets are managed outside Helm.
   - `GITHUB_APP_CLIENT_SECRET`
   - `GITHUB_REDIRECT_URI`
 
+## SCM mode (GitHub or GitLab)
+
+Bosun runs in either GitHub mode or GitLab mode (mutually exclusive).
+
+```
+scm:
+  mode: github  # or gitlab
+```
+
+### GitHub mode (default)
+
+Provide the GitHub App/OAuth secrets in `github-secrets` (see above).
+
+### GitLab mode
+
+GitLab mode uses a personal access token (PAT) and disables authentication by default.
+Provide a secret with `GITLAB_PAT` and set:
+
+```
+scm:
+  mode: gitlab
+  gitlab:
+    patSecretName: gitlab-secrets
+    apiEndpoint: https://gitlab.com/api/v4
+```
+
+Create the secret:
+
+```
+kubectl -n bosun create secret generic gitlab-secrets \
+  --from-literal=GITLAB_PAT=glpat-xxxx
+```
+
 ## Envelope encryption keys
 
 The chart generates a `fluyt-envelope-encr-secrets` Secret on install containing:
@@ -150,6 +183,7 @@ helm plugin install https://github.com/helm-unittest/helm-unittest --verify=fals
 
 The lightweight harness lives in `helm/ci/` and uses:
 - `helm/ci/e2e-secrets.yaml` for placeholder secrets
+- `helm/ci/e2e-secrets-gitlab.yaml` when `E2E_SCM_MODE=gitlab`
 - `helm/ci/e2e-deps.yaml` is optional (set `E2E_DEPS=true`) if you want standalone deps
   instead of the bundled services
 
@@ -162,6 +196,7 @@ helm/ci/e2e-smoke.sh
 helm/ci/k3d-down.sh
 ```
 
+Set `E2E_SCM_MODE=gitlab` to run the GitLab-mode e2e values/secrets.
 Set `E2E_SMOKE=false` to skip smoke checks in `e2e-run.sh`.
 If you already have an image pull secret, set `USE_IMAGE_PULL_SECRET=true` and `IMAGE_PULL_SECRET_NAME=...`
 to inject it into the Helm release.

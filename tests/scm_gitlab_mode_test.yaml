@@ -1,0 +1,71 @@
+suite: scm gitlab mode
+templates:
+  - stern/deployment.yaml
+  - stern/configmap.yaml
+  - quak/deployment.yaml
+  - quak/configmap.yaml
+  - bow/configmap.yaml
+tests:
+  - it: sets gitlab defaults in configmaps
+    template: stern/configmap.yaml
+    set:
+      scm.mode: gitlab
+    asserts:
+      - equal:
+          path: data.GITLAB_API_ENDPOINT
+          value: https://gitlab.com/api/v4
+      - equal:
+          path: data.AUTHENTICATION_DISABLED
+          value: "true"
+  - it: sets gitlab api endpoint for quak
+    template: quak/configmap.yaml
+    set:
+      scm.mode: gitlab
+    asserts:
+      - equal:
+          path: data.GITLAB_API_ENDPOINT
+          value: https://gitlab.com/api/v4
+  - it: sets auth disabled for bow
+    template: bow/configmap.yaml
+    set:
+      scm.mode: gitlab
+    asserts:
+      - equal:
+          path: data.AUTHENTICATION_DISABLED
+          value: "true"
+  - it: injects gitlab pat secret and skips github secret
+    template: stern/deployment.yaml
+    set:
+      scm.mode: gitlab
+      scm.gitlab.patSecretName: gitlab-pat
+      stern.secrets.existing:
+        - github-secrets
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: gitlab-pat
+      - notContains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: github-secrets
+  - it: injects gitlab pat secret for quak and skips github secret
+    template: quak/deployment.yaml
+    set:
+      scm.mode: gitlab
+      scm.gitlab.patSecretName: gitlab-pat
+      quak.secrets.existing:
+        - github-secrets
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: gitlab-pat
+      - notContains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: github-secrets

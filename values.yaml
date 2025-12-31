@@ -16,6 +16,15 @@ global:
 nameOverride: ""
 fullnameOverride: ""
 
+scm:
+  mode: github
+  github:
+    secretName: github-secrets
+  gitlab:
+    patSecretName: gitlab-secrets
+    patSecretKey: GITLAB_PAT
+    apiEndpoint: https://gitlab.com/api/v4
+
 bow:
   enabled: true
   replicas: 2
