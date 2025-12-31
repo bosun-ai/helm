@@ -24,12 +24,14 @@ spec:
       labels:
         {{- include "bosun.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: stern-migrate
-{{- if .Values.stern.podAnnotations }}
+{{- $podAnnotations := .Values.stern.podAnnotations | default dict }}
+{{- if not $podAnnotations }}
+{{- $podAnnotations = .Values.global.podAnnotations | default dict }}
+{{- end }}
       annotations:
-        {{- toYaml .Values.stern.podAnnotations | nindent 8 }}
-{{- else if .Values.global.podAnnotations }}
-      annotations:
-        {{- toYaml .Values.global.podAnnotations | nindent 8 }}
+        checksum/config: {{ include (print $.Template.BasePath "/stern/configmap.yaml") . | sha256sum }}
+{{- with $podAnnotations }}
+        {{- toYaml . | nindent 8 }}
 {{- end }}
     spec:
       restartPolicy: OnFailure

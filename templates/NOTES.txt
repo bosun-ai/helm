@@ -1,0 +1,17 @@
+Bosun chart installed.
+
+Secrets must exist in the release namespace:
+  - stern-secrets
+  - quak-secrets
+  - github-secrets
+  - fluyt-envelope-encr-secrets
+
+Quickstart secrets (non-production) are available at:
+  helm/examples/quickstart-secrets.yaml
+
+Bundled services (Postgres/Redis/Qdrant) are enabled by default.
+To use external services instead, set:
+  postgres.enabled=false
+  redis.enabled=false
+  qdrant.enabled=false
+and provide URLs via values (stern.env / quak.env / stern.database).

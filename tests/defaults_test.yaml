@@ -1,8 +1,10 @@
 suite: bow deployment
 templates:
   - bow/deployment.yaml
+  - bow/configmap.yaml
 tests:
   - it: renders bow deployment
+    template: bow/deployment.yaml
     asserts:
       - isKind:
           of: Deployment
@@ -17,8 +19,10 @@ tests:
 suite: stern deployment
 templates:
   - stern/deployment.yaml
+  - stern/configmap.yaml
 tests:
   - it: renders stern deployment and database env
+    template: stern/deployment.yaml
     asserts:
       - isKind:
           of: Deployment
@@ -36,8 +40,10 @@ tests:
 suite: quak deployment
 templates:
   - quak/deployment.yaml
+  - quak/configmap.yaml
 tests:
   - it: renders quak deployment
+    template: quak/deployment.yaml
     asserts:
       - isKind:
           of: Deployment
@@ -49,8 +55,10 @@ tests:
 suite: billing worker
 templates:
   - stern/billing-worker.yaml
+  - stern/configmap.yaml
 tests:
   - it: renders billing worker deployment by default
+    template: stern/billing-worker.yaml
     asserts:
       - isKind:
           of: Deployment
@@ -65,8 +73,10 @@ tests:
 suite: stern migrate job
 templates:
   - stern/migrate-job.yaml
+  - stern/configmap.yaml
 tests:
   - it: renders stern migration job
+    template: stern/migrate-job.yaml
     asserts:
       - isKind:
           of: Job
@@ -295,8 +305,10 @@ tests:
 suite: stern database url override
 templates:
   - stern/deployment.yaml
+  - stern/configmap.yaml
 tests:
   - it: uses direct database url when set
+    template: stern/deployment.yaml
     set:
       stern.database.url: postgresql://user:pass@db.example.com:5432/app
       stern.database.existingSecret: ""
@@ -335,8 +347,10 @@ tests:
 suite: image tag override
 templates:
   - stern/deployment.yaml
+  - stern/configmap.yaml
 tests:
   - it: overrides stern image tag
+    template: stern/deployment.yaml
     set:
       stern.image.tag: 2025.01.01
     asserts:

@@ -5,7 +5,7 @@ This chart installs the Bosun on-prem stack (Bow, Stern, Quak) with optional hel
 
 ## Quick start
 
-1) Create required secrets in the release namespace (examples below).
+1) Create required secrets in the release namespace.
 2) Install:
 
 ```
@@ -13,6 +13,18 @@ helm install bosun helm/ \
   --namespace fluyt \
   --create-namespace
 ```
+
+### Zero-config quickstart (non-production)
+
+For a local/demo install with bundled services and dummy secrets:
+
+```
+kubectl create namespace fluyt
+kubectl -n fluyt apply -f helm/examples/quickstart-secrets.yaml
+helm install bosun helm/ --namespace fluyt
+```
+
+Replace the dummy values before production use.
 
 ## Required secrets (external)
 
