@@ -1,0 +1,50 @@
+{{- if and .Values.bow.enabled .Values.bow.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "bosun.componentFullname" (dict "root" . "component" "bow") }}-pdb
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: bow
+spec:
+  minAvailable: {{ .Values.bow.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "bosun.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: bow
+---
+{{- end }}
+{{- if and .Values.stern.enabled .Values.stern.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "bosun.componentFullname" (dict "root" . "component" "stern") }}-pdb
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: stern
+spec:
+  minAvailable: {{ .Values.stern.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "bosun.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: stern
+---
+{{- end }}
+{{- if and .Values.quak.enabled .Values.quak.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "bosun.componentFullname" (dict "root" . "component" "quak") }}-pdb
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: quak
+spec:
+  minAvailable: {{ .Values.quak.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "bosun.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: quak
+{{- end }}

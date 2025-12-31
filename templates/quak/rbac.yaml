@@ -1,0 +1,79 @@
+{{- if .Values.quak.rbac.enabled }}
+{{- $saName := include "bosun.quak.serviceAccountName" . }}
+{{- if .Values.quak.executorNamespace.create }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.quak.executorNamespace.name }}
+---
+{{- end }}
+{{- if and $saName (not .Values.quak.serviceAccountName) }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ $saName }}
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: quak
+{{- with .Values.global.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+automountServiceAccountToken: true
+---
+{{- end }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "bosun.componentFullname" (dict "root" . "component" "quak") }}-executor
+  namespace: {{ .Values.quak.executorNamespace.name }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: quak
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services"]
+    verbs:
+      - create
+      - get
+      - watch
+      - list
+      - delete
+      - patch
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["networkpolicies"]
+    verbs:
+      - create
+      - get
+      - watch
+      - list
+      - delete
+      - patch
+  - apiGroups: ["apps"]
+    resources: ["statefulsets"]
+    verbs:
+      - create
+      - get
+      - watch
+      - list
+      - delete
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "bosun.componentFullname" (dict "root" . "component" "quak") }}-executor
+  namespace: {{ .Values.quak.executorNamespace.name }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: quak
+subjects:
+  - kind: ServiceAccount
+    name: {{ $saName }}
+    namespace: {{ include "bosun.namespace" . }}
+roleRef:
+  kind: Role
+  name: {{ include "bosun.componentFullname" (dict "root" . "component" "quak") }}-executor
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

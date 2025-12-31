@@ -1,0 +1,309 @@
+global:
+  namespace: ""
+  imagePullSecrets: []
+  labels: {}
+  annotations: {}
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  resources:
+    requests: {}
+    limits: {}
+
+nameOverride: ""
+fullnameOverride: ""
+
+bow:
+  enabled: true
+  replicas: 2
+  image:
+    repository: ghcr.io/bosun-ai/fluyt/bow
+    tag: latest
+    pullPolicy: IfNotPresent
+  containerPort: 80
+  terminationGracePeriodSeconds: 30
+  env:
+    BACKEND_URL: https://api.bosun.ai
+    BUN_ENV: production
+    NODE_ENV: production
+  service:
+    type: ClusterIP
+    port: 80
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts:
+      - host: app.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+  pdb:
+    enabled: true
+    minAvailable: 1
+  probes:
+    readiness:
+      httpGet:
+        path: /
+        port: http
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      failureThreshold: 3
+    liveness:
+      httpGet:
+        path: /
+        port: http
+      initialDelaySeconds: 30
+      periodSeconds: 30
+      failureThreshold: 4
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podAnnotations: {}
+
+stern:
+  enabled: true
+  replicas: 2
+  image:
+    repository: ghcr.io/bosun-ai/fluyt/stern
+    tag: latest
+    pullPolicy: IfNotPresent
+  containerPort: 3000
+  terminationGracePeriodSeconds: 120
+  env:
+    RAILS_ENV: production
+    REDIS_URL: redis://redis-shared:6379
+    QUAK_URL: http://quak:3001
+    ROOT_URL: http://stern:3000
+    BILLING_DISABLED: "true"
+  secrets:
+    existing:
+      - stern-secrets
+      - github-secrets
+      - fluyt-envelope-encr-secrets
+  database:
+    url: ""
+    existingSecret: postgres-app
+    existingSecretKey: uri
+  service:
+    type: ClusterIP
+    port: 3000
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts:
+      - host: api.example.com
+        paths:
+          - path: /api
+            pathType: Prefix
+          - path: /up
+            pathType: Prefix
+          - path: /cable
+            pathType: Prefix
+          - path: /github/webhook
+            pathType: Prefix
+          - path: /stripe/webhook
+            pathType: Prefix
+      - host: app.example.com
+        paths:
+          - path: /api
+            pathType: Prefix
+    tls: []
+  pdb:
+    enabled: true
+    minAvailable: 1
+  probes:
+    readiness:
+      httpGet:
+        path: /up
+        port: http
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      failureThreshold: 3
+    liveness:
+      httpGet:
+        path: /up
+        port: http
+      initialDelaySeconds: 60
+      periodSeconds: 30
+      failureThreshold: 4
+    startup:
+      httpGet:
+        path: /up
+        port: http
+      failureThreshold: 18
+      periodSeconds: 10
+  migrations:
+    enabled: true
+    hook:
+      enabled: true
+      deletePolicy: before-hook-creation,hook-succeeded
+    command:
+      - bundle
+      - exec
+      - rails
+      - db:migrate
+    backoffLimit: 3
+    ttlSecondsAfterFinished: 3600
+  billingWorker:
+    enabled: true
+    replicas: 1
+    strategy:
+      type: Recreate
+    command:
+      - bin/thrust
+      - bin/jobs
+    probes:
+      readiness:
+        exec:
+          command:
+            - /bin/sh
+            - -c
+            - pgrep -f "bin/thrust bin/jobs"
+        initialDelaySeconds: 30
+        periodSeconds: 30
+        failureThreshold: 3
+      liveness:
+        exec:
+          command:
+            - /bin/sh
+            - -c
+            - pgrep -f "bin/thrust bin/jobs"
+        initialDelaySeconds: 60
+        periodSeconds: 30
+        failureThreshold: 3
+      startup:
+        exec:
+          command:
+            - /bin/sh
+            - -c
+            - pgrep -f "bin/thrust bin/jobs"
+        failureThreshold: 20
+        periodSeconds: 6
+    resources: {}
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podAnnotations: {}
+
+quak:
+  enabled: true
+  replicas: 2
+  serviceAccountName: ""
+  image:
+    repository: ghcr.io/bosun-ai/fluyt/quak
+    tag: latest
+    pullPolicy: IfNotPresent
+  containerPort: 3001
+  terminationGracePeriodSeconds: 1800
+  env:
+    QDRANT_URL: http://qdrant:6334
+    REDIS_URL: redis://redis-shared:6379
+    REDIS_INDEXING_URL: redis://redis-indexing:6379
+    RUST_LOG: quak=debug,kwaak=debug,swiftide=debug,warn
+    OTEL_ENABLED: "false"
+    KUBERNETES_ENABLED: "true"
+    K8S_EXECUTOR_STORAGE_CLASS_NAME: bosun-executor-encrypted
+    K8S_EXECUTOR_VOLUME_SIZE_GIB: "40"
+    EXECUTOR_TAG: latest
+  secrets:
+    existing:
+      - quak-secrets
+      - github-secrets
+      - fluyt-envelope-encr-secrets
+  service:
+    type: ClusterIP
+    port: 3001
+    sessionAffinity: ClientIP
+    sessionAffinityTimeoutSeconds: 14400
+  rbac:
+    enabled: true
+  executorNamespace:
+    name: tasks
+    create: false
+  pdb:
+    enabled: true
+    minAvailable: 1
+  probes:
+    readiness:
+      httpGet:
+        path: /health
+        port: http
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      failureThreshold: 3
+    liveness:
+      httpGet:
+        path: /health
+        port: http
+      initialDelaySeconds: 60
+      periodSeconds: 30
+      failureThreshold: 4
+    startup:
+      httpGet:
+        path: /health
+        port: http
+      failureThreshold: 30
+      periodSeconds: 10
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podAnnotations: {}
+
+prepull:
+  enabled: false
+  image:
+    repository: bosunai/swiftide-docker-universal
+    tag: latest
+    pullPolicy: Always
+  hook:
+    enabled: false
+    deletePolicy: before-hook-creation,hook-succeeded
+  tolerations:
+    - key: tasks-only
+      operator: Equal
+      value: "true"
+      effect: NoSchedule
+
+overprovisioner:
+  enabled: false
+  replicas: 1
+  priorityClass:
+    create: true
+    name: overprovisioning-low
+    value: -10
+    globalDefault: false
+    description: Preemptable padding pods that reserve capacity for task executors.
+  nodeSelector:
+    tasks-only: "true"
+  tolerations:
+    - key: tasks-only
+      operator: Equal
+      value: "true"
+      effect: NoSchedule
+  resources:
+    requests:
+      cpu: "2000m"
+      memory: "4096Mi"
+    limits:
+      cpu: "2000m"
+      memory: "4096Mi"
+
+storageClass:
+  enabled: false
+  name: bosun-executor-encrypted
+  annotations:
+    bosun.ai/intent: Encrypt executor PVCs for customer repositories
+  provisioner: csi.hetzner.cloud
+  reclaimPolicy: Delete
+  volumeBindingMode: WaitForFirstConsumer
+  allowVolumeExpansion: true
+  parameters:
+    csi.storage.k8s.io/node-publish-secret-name: executor-volume-encryption
+    csi.storage.k8s.io/node-publish-secret-namespace: kube-system

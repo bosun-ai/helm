@@ -1,0 +1,52 @@
+{{- if .Values.prepull.enabled }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "bosun.componentFullname" (dict "root" . "component" "image-prepull") }}
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: image-prepull
+{{- if .Values.prepull.hook.enabled }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-delete-policy: {{ .Values.prepull.hook.deletePolicy | quote }}
+{{- else if .Values.global.annotations }}
+  annotations:
+    {{- toYaml .Values.global.annotations | nindent 4 }}
+{{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "bosun.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: image-prepull
+  template:
+    metadata:
+      labels:
+        {{- include "bosun.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: image-prepull
+    spec:
+{{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+{{- range . }}
+        - name: {{ . }}
+{{- end }}
+{{- end }}
+      initContainers:
+        - name: preload-target-image
+          image: "{{ .Values.prepull.image.repository }}:{{ .Values.prepull.image.tag }}"
+          imagePullPolicy: {{ .Values.prepull.image.pullPolicy }}
+          command: ["/bin/sh", "-c", "echo 'Image now on ${NODE_NAME}'"]
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+      containers:
+        - name: hold
+          image: registry.k8s.io/pause:3.9
+{{- with .Values.prepull.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+{{- end }}
+{{- end }}

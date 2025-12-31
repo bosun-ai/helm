@@ -1,0 +1,115 @@
+{{- if and .Values.stern.enabled .Values.stern.billingWorker.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "bosun.componentFullname" (dict "root" . "component" "stern-billing-worker") }}
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: stern-billing-worker
+{{- with .Values.global.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  replicas: {{ .Values.stern.billingWorker.replicas }}
+{{- with .Values.stern.billingWorker.strategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+  selector:
+    matchLabels:
+      {{- include "bosun.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: stern-billing-worker
+  template:
+    metadata:
+      labels:
+        {{- include "bosun.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: stern-billing-worker
+{{- if .Values.stern.podAnnotations }}
+      annotations:
+        {{- toYaml .Values.stern.podAnnotations | nindent 8 }}
+{{- else if .Values.global.podAnnotations }}
+      annotations:
+        {{- toYaml .Values.global.podAnnotations | nindent 8 }}
+{{- end }}
+    spec:
+{{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+{{- range . }}
+        - name: {{ . }}
+{{- end }}
+{{- end }}
+{{- if .Values.stern.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.stern.nodeSelector | nindent 8 }}
+{{- else if .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.global.nodeSelector | nindent 8 }}
+{{- end }}
+{{- if .Values.stern.tolerations }}
+      tolerations:
+        {{- toYaml .Values.stern.tolerations | nindent 8 }}
+{{- else if .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml .Values.global.tolerations | nindent 8 }}
+{{- end }}
+{{- if .Values.stern.affinity }}
+      affinity:
+        {{- toYaml .Values.stern.affinity | nindent 8 }}
+{{- else if .Values.global.affinity }}
+      affinity:
+        {{- toYaml .Values.global.affinity | nindent 8 }}
+{{- end }}
+      containers:
+        - name: stern-billing-worker
+          image: "{{ .Values.stern.image.repository }}:{{ .Values.stern.image.tag }}"
+          imagePullPolicy: {{ .Values.stern.image.pullPolicy }}
+{{- with .Values.stern.billingWorker.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+{{- end }}
+{{- with .Values.stern.billingWorker.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+{{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "bosun.componentFullname" (dict "root" . "component" "stern") }}-env
+{{- range .Values.stern.secrets.existing }}
+            - secretRef:
+                name: {{ . }}
+{{- end }}
+{{- if or .Values.stern.database.url .Values.stern.database.existingSecret }}
+          env:
+{{- if .Values.stern.database.url }}
+            - name: DATABASE_URL
+              value: {{ .Values.stern.database.url | quote }}
+{{- else if .Values.stern.database.existingSecret }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.stern.database.existingSecret }}
+                  key: {{ .Values.stern.database.existingSecretKey }}
+{{- end }}
+{{- end }}
+{{- with .Values.stern.billingWorker.probes.readiness }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+{{- end }}
+{{- with .Values.stern.billingWorker.probes.liveness }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+{{- end }}
+{{- with .Values.stern.billingWorker.probes.startup }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+{{- end }}
+{{- if .Values.stern.billingWorker.resources }}
+          resources:
+            {{- toYaml .Values.stern.billingWorker.resources | nindent 12 }}
+{{- else if .Values.global.resources }}
+          resources:
+            {{- toYaml .Values.global.resources | nindent 12 }}
+{{- end }}
+{{- end }}

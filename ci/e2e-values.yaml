@@ -1,0 +1,27 @@
+prepull:
+  enabled: false
+overprovisioner:
+  enabled: false
+storageClass:
+  enabled: false
+
+bow:
+  replicas: 1
+  ingress:
+    enabled: false
+
+stern:
+  replicas: 1
+  ingress:
+    enabled: false
+  migrations:
+    enabled: false
+  env:
+    REDIS_URL: redis://redis:6379
+
+quak:
+  replicas: 1
+  env:
+    REDIS_URL: redis://redis:6379
+    REDIS_INDEXING_URL: redis://redis-indexing:6379
+    QDRANT_URL: http://qdrant:6334

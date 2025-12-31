@@ -1,0 +1,108 @@
+{{- if .Values.stern.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "bosun.componentFullname" (dict "root" . "component" "stern") }}
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: stern
+{{- with .Values.global.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  replicas: {{ .Values.stern.replicas }}
+  selector:
+    matchLabels:
+      {{- include "bosun.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: stern
+  template:
+    metadata:
+      labels:
+        {{- include "bosun.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: stern
+{{- if .Values.stern.podAnnotations }}
+      annotations:
+        {{- toYaml .Values.stern.podAnnotations | nindent 8 }}
+{{- else if .Values.global.podAnnotations }}
+      annotations:
+        {{- toYaml .Values.global.podAnnotations | nindent 8 }}
+{{- end }}
+    spec:
+      terminationGracePeriodSeconds: {{ .Values.stern.terminationGracePeriodSeconds }}
+{{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+{{- range . }}
+        - name: {{ . }}
+{{- end }}
+{{- end }}
+{{- if .Values.stern.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.stern.nodeSelector | nindent 8 }}
+{{- else if .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.global.nodeSelector | nindent 8 }}
+{{- end }}
+{{- if .Values.stern.tolerations }}
+      tolerations:
+        {{- toYaml .Values.stern.tolerations | nindent 8 }}
+{{- else if .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml .Values.global.tolerations | nindent 8 }}
+{{- end }}
+{{- if .Values.stern.affinity }}
+      affinity:
+        {{- toYaml .Values.stern.affinity | nindent 8 }}
+{{- else if .Values.global.affinity }}
+      affinity:
+        {{- toYaml .Values.global.affinity | nindent 8 }}
+{{- end }}
+      containers:
+        - name: stern
+          image: "{{ .Values.stern.image.repository }}:{{ .Values.stern.image.tag }}"
+          imagePullPolicy: {{ .Values.stern.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "bosun.componentFullname" (dict "root" . "component" "stern") }}-env
+{{- range .Values.stern.secrets.existing }}
+            - secretRef:
+                name: {{ . }}
+{{- end }}
+{{- if or .Values.stern.database.url .Values.stern.database.existingSecret }}
+          env:
+{{- if .Values.stern.database.url }}
+            - name: DATABASE_URL
+              value: {{ .Values.stern.database.url | quote }}
+{{- else if .Values.stern.database.existingSecret }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.stern.database.existingSecret }}
+                  key: {{ .Values.stern.database.existingSecretKey }}
+{{- end }}
+{{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.stern.containerPort }}
+              protocol: TCP
+{{- with .Values.stern.probes.readiness }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+{{- end }}
+{{- with .Values.stern.probes.liveness }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+{{- end }}
+{{- with .Values.stern.probes.startup }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+{{- end }}
+{{- if .Values.stern.resources }}
+          resources:
+            {{- toYaml .Values.stern.resources | nindent 12 }}
+{{- else if .Values.global.resources }}
+          resources:
+            {{- toYaml .Values.global.resources | nindent 12 }}
+{{- end }}
+{{- end }}

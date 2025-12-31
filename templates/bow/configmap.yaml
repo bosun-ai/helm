@@ -1,0 +1,22 @@
+{{- if .Values.bow.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "bosun.componentFullname" (dict "root" . "component" "bow") }}-env
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: bow
+{{- with .Values.global.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+data:
+{{- if .Values.bow.env }}
+{{- range $key, $value := .Values.bow.env }}
+  {{ $key }}: {{ $value | quote }}
+{{- end }}
+{{- else }}
+  {}
+{{- end }}
+{{- end }}

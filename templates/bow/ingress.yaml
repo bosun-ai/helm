@@ -1,0 +1,37 @@
+{{- if and .Values.bow.enabled .Values.bow.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "bosun.componentFullname" (dict "root" . "component" "bow") }}
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: bow
+{{- with .Values.bow.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+{{- if .Values.bow.ingress.className }}
+  ingressClassName: {{ .Values.bow.ingress.className }}
+{{- end }}
+  rules:
+{{- range .Values.bow.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+{{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType | default "Prefix" }}
+            backend:
+              service:
+                name: {{ include "bosun.componentFullname" (dict "root" $ "component" "bow") }}
+                port:
+                  number: {{ $.Values.bow.service.port }}
+{{- end }}
+{{- end }}
+{{- with .Values.bow.ingress.tls }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+{{- end }}

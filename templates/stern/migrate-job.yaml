@@ -1,0 +1,73 @@
+{{- if and .Values.stern.enabled .Values.stern.migrations.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "bosun.componentFullname" (dict "root" . "component" "stern-migrate") }}
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: stern-migrate
+{{- if .Values.stern.migrations.hook.enabled }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-delete-policy: {{ .Values.stern.migrations.hook.deletePolicy | quote }}
+{{- else if .Values.global.annotations }}
+  annotations:
+    {{- toYaml .Values.global.annotations | nindent 4 }}
+{{- end }}
+spec:
+  backoffLimit: {{ .Values.stern.migrations.backoffLimit }}
+  ttlSecondsAfterFinished: {{ .Values.stern.migrations.ttlSecondsAfterFinished }}
+  template:
+    metadata:
+      labels:
+        {{- include "bosun.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: stern-migrate
+{{- if .Values.stern.podAnnotations }}
+      annotations:
+        {{- toYaml .Values.stern.podAnnotations | nindent 8 }}
+{{- else if .Values.global.podAnnotations }}
+      annotations:
+        {{- toYaml .Values.global.podAnnotations | nindent 8 }}
+{{- end }}
+    spec:
+      restartPolicy: OnFailure
+{{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+{{- range . }}
+        - name: {{ . }}
+{{- end }}
+{{- end }}
+      containers:
+        - name: stern-migrate
+          image: "{{ .Values.stern.image.repository }}:{{ .Values.stern.image.tag }}"
+          imagePullPolicy: {{ .Values.stern.image.pullPolicy }}
+{{- with .Values.stern.migrations.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+{{- end }}
+{{- with .Values.stern.migrations.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+{{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "bosun.componentFullname" (dict "root" . "component" "stern") }}-env
+{{- range .Values.stern.secrets.existing }}
+            - secretRef:
+                name: {{ . }}
+{{- end }}
+{{- if or .Values.stern.database.url .Values.stern.database.existingSecret }}
+          env:
+{{- if .Values.stern.database.url }}
+            - name: DATABASE_URL
+              value: {{ .Values.stern.database.url | quote }}
+{{- else if .Values.stern.database.existingSecret }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.stern.database.existingSecret }}
+                  key: {{ .Values.stern.database.existingSecretKey }}
+{{- end }}
+{{- end }}
+{{- end }}
