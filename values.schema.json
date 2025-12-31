@@ -496,6 +496,39 @@
         "allowVolumeExpansion": { "type": "boolean" },
         "parameters": { "type": "object" }
       }
+    },
+    "envelopeEncryption": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "create": { "type": "boolean" },
+        "secretName": { "type": "string" },
+        "job": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "opensslImage": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "repository": { "type": "string" },
+                "tag": { "type": "string" },
+                "pullPolicy": { "type": "string", "enum": ["Always", "IfNotPresent", "Never"] }
+              }
+            },
+            "kubectlImage": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "repository": { "type": "string" },
+                "tag": { "type": "string" },
+                "pullPolicy": { "type": "string", "enum": ["Always", "IfNotPresent", "Never"] }
+              }
+            },
+            "backoffLimit": { "type": "integer" }
+          }
+        }
+      }
     }
   }
 }

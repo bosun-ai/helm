@@ -28,18 +28,15 @@ Replace the dummy values before production use.
 
 ## Required secrets (external)
 
-The chart assumes secrets are managed outside Helm.
+The chart assumes most secrets are managed outside Helm.
 
 - `stern-secrets`
-  - `REDIS_URL`
-  - `DATABASE_URL` (if not using `stern.database.*`)
-  - `QUAK_PAYLOAD_PUBLIC_KEY`
+  - `SECRET_KEY_BASE`
+  - `REDIS_URL` (only if using external Redis)
+  - `DATABASE_URL` (only if using external Postgres and `stern.database.*` is not set)
 - `quak-secrets`
-  - `QDRANT_URL`
-  - `REDIS_URL`
-  - `REDIS_INDEXING_URL`
   - `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `TAVILY_API_KEY`
-  - `PAYLOAD_PRIVATE_KEY`
+  - (Redis/Qdrant URLs are derived by default; only set if using external services)
 - `github-secrets`
   - `GITHUB_APP_NAME`
   - `GITHUB_APP_ID`
@@ -47,8 +44,37 @@ The chart assumes secrets are managed outside Helm.
   - `GITHUB_APP_CLIENT_ID`
   - `GITHUB_APP_CLIENT_SECRET`
   - `GITHUB_REDIRECT_URI`
-- `fluyt-envelope-encr-secrets`
-  - envelope encryption keys
+
+## Envelope encryption keys
+
+The chart generates a `fluyt-envelope-encr-secrets` Secret on install containing:
+- `APP_PAYLOAD_PRIVATE_KEY` (base64 PEM)
+- `QUAK_PAYLOAD_PUBLIC_KEY` (base64 PEM)
+
+The generation uses the same RSA keypair workflow as `fluyt/justfile` (openssl).
+
+To provide your own keys instead:
+
+```
+envelopeEncryption:
+  create: false
+```
+
+Create a Secret named `fluyt-envelope-encr-secrets` with those keys, or update
+`stern.secrets.existing` and `quak.secrets.existing` to point at your secret.
+
+The generator images are configurable:
+
+```
+envelopeEncryption:
+  job:
+    opensslImage:
+      repository: alpine/openssl
+      tag: latest
+    kubectlImage:
+      repository: bitnami/kubectl
+      tag: latest
+```
 
 ## Bundled services (default)
 
@@ -136,7 +162,7 @@ helm/ci/e2e-smoke.sh
 helm/ci/k3d-down.sh
 ```
 
-Set `E2E_SMOKE=false` to skip smoke checks in `e2e-install.sh`.
+Set `E2E_SMOKE=false` to skip smoke checks in `e2e-run.sh`.
 If you already have an image pull secret, set `USE_IMAGE_PULL_SECRET=true` and `IMAGE_PULL_SECRET_NAME=...`
 to inject it into the Helm release.
 

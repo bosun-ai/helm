@@ -1,0 +1,52 @@
+{{- if .Values.envelopeEncryption.create }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "bosun.componentFullname" (dict "root" . "component" "envelope-encryption") }}
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: envelope-encryption
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+{{- with .Values.global.annotations }}
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "bosun.componentFullname" (dict "root" . "component" "envelope-encryption") }}
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: envelope-encryption
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "bosun.componentFullname" (dict "root" . "component" "envelope-encryption") }}
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: envelope-encryption
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "bosun.componentFullname" (dict "root" . "component" "envelope-encryption") }}
+    namespace: {{ include "bosun.namespace" . }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "bosun.componentFullname" (dict "root" . "component" "envelope-encryption") }}
+{{- end }}

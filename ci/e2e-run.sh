@@ -10,9 +10,14 @@ RELEASE_NAME=${BOSUN_RELEASE_NAME:-bosun}
 IMAGE_PULL_SECRET_NAME=${IMAGE_PULL_SECRET_NAME:-ghcr-pull}
 USE_IMAGE_PULL_SECRET=${USE_IMAGE_PULL_SECRET:-false}
 E2E_DEPS=${E2E_DEPS:-false}
+E2E_RESET=${E2E_RESET:-true}
 
 if [ -z "${KUBECONFIG:-}" ] && [ -f "${SCRIPT_DIR}/kubeconfig" ]; then
   export KUBECONFIG="${SCRIPT_DIR}/kubeconfig"
+fi
+
+if [ "${E2E_RESET}" = "true" ]; then
+  kubectl delete namespace tasks --ignore-not-found
 fi
 
 kubectl create namespace "${NAMESPACE}" --dry-run=client -o yaml | kubectl apply -f -

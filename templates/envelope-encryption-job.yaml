@@ -1,0 +1,71 @@
+{{- if .Values.envelopeEncryption.create }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "bosun.componentFullname" (dict "root" . "component" "envelope-encryption") }}
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: envelope-encryption
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: {{ .Values.envelopeEncryption.job.backoffLimit }}
+  template:
+    metadata:
+      labels:
+        {{- include "bosun.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: envelope-encryption
+    spec:
+      serviceAccountName: {{ include "bosun.componentFullname" (dict "root" . "component" "envelope-encryption") }}
+      restartPolicy: Never
+{{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+{{- range . }}
+        - name: {{ . }}
+{{- end }}
+{{- end }}
+      volumes:
+        - name: work
+          emptyDir: {}
+      initContainers:
+        - name: generate-keys
+          image: "{{ .Values.envelopeEncryption.job.opensslImage.repository }}:{{ .Values.envelopeEncryption.job.opensslImage.tag }}"
+          imagePullPolicy: {{ .Values.envelopeEncryption.job.opensslImage.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+          args:
+            - |
+              set -euo pipefail
+              openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:4096 -out /work/private.pem
+              openssl rsa -in /work/private.pem -pubout -out /work/public.pem
+              openssl base64 -A -in /work/private.pem > /work/private.pem.b64
+              openssl base64 -A -in /work/public.pem > /work/public.pem.b64
+          volumeMounts:
+            - name: work
+              mountPath: /work
+      containers:
+        - name: apply-secret
+          image: "{{ .Values.envelopeEncryption.job.kubectlImage.repository }}:{{ .Values.envelopeEncryption.job.kubectlImage.tag }}"
+          imagePullPolicy: {{ .Values.envelopeEncryption.job.kubectlImage.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+          args:
+            - |
+              set -euo pipefail
+              namespace="{{ include "bosun.namespace" . }}"
+              secret="{{ .Values.envelopeEncryption.secretName }}"
+              if kubectl -n "${namespace}" get secret "${secret}" >/dev/null 2>&1; then
+                echo "Secret ${secret} already exists; skipping."
+                exit 0
+              fi
+              kubectl -n "${namespace}" create secret generic "${secret}" \
+                --from-file=APP_PAYLOAD_PRIVATE_KEY=/work/private.pem.b64 \
+                --from-file=QUAK_PAYLOAD_PUBLIC_KEY=/work/public.pem.b64
+          volumeMounts:
+            - name: work
+              mountPath: /work
+{{- end }}

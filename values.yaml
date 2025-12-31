@@ -324,6 +324,20 @@ storageClass:
     csi.storage.k8s.io/node-publish-secret-name: executor-volume-encryption
     csi.storage.k8s.io/node-publish-secret-namespace: kube-system
 
+envelopeEncryption:
+  create: true
+  secretName: fluyt-envelope-encr-secrets
+  job:
+    opensslImage:
+      repository: alpine/openssl
+      tag: "latest"
+      pullPolicy: IfNotPresent
+    kubectlImage:
+      repository: bitnami/kubectl
+      tag: "latest"
+      pullPolicy: IfNotPresent
+    backoffLimit: 1
+
 postgres:
   enabled: true
   replicas: 1

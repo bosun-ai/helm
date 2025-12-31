@@ -591,3 +591,38 @@ tests:
       - equal:
           path: data.REDIS_URL
           value: redis://redis.example.com:6379
+
+---
+suite: envelope encryption job
+templates:
+  - envelope-encryption-rbac.yaml
+  - envelope-encryption-job.yaml
+tests:
+  - it: renders rbac by default
+    template: envelope-encryption-rbac.yaml
+    asserts:
+      - hasDocuments:
+          count: 3
+      - equal:
+          path: kind
+          value: ServiceAccount
+        documentIndex: 0
+      - equal:
+          path: kind
+          value: Role
+        documentIndex: 1
+      - equal:
+          path: kind
+          value: RoleBinding
+        documentIndex: 2
+  - it: renders job by default
+    template: envelope-encryption-job.yaml
+    asserts:
+      - isKind:
+          of: Job
+  - it: does not render when disabled
+    set:
+      envelopeEncryption.create: false
+    asserts:
+      - hasDocuments:
+          count: 0
