@@ -41,9 +41,10 @@ spec:
         - name: {{ . }}
 {{- end }}
 {{- end }}
+      {{- $imageTag := default .Values.global.image.tag .Values.stern.image.tag }}
       containers:
         - name: stern-migrate
-          image: "{{ .Values.stern.image.repository }}:{{ .Values.stern.image.tag }}"
+          image: "{{ .Values.stern.image.repository }}:{{ $imageTag }}"
           imagePullPolicy: {{ .Values.stern.image.pullPolicy }}
 {{- with .Values.stern.migrations.command }}
           command:

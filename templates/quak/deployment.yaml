@@ -64,9 +64,10 @@ spec:
       affinity:
         {{- toYaml .Values.global.affinity | nindent 8 }}
 {{- end }}
+      {{- $imageTag := default .Values.global.image.tag .Values.quak.image.tag }}
       containers:
         - name: quak
-          image: "{{ .Values.quak.image.repository }}:{{ .Values.quak.image.tag }}"
+          image: "{{ .Values.quak.image.repository }}:{{ $imageTag }}"
           imagePullPolicy: {{ .Values.quak.image.pullPolicy }}
 {{- with .Values.quak.command }}
           command:

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-NAMESPACE=${BOSUN_NAMESPACE:-fluyt}
+NAMESPACE=${BOSUN_NAMESPACE:-bosun}
 RELEASE_NAME=${BOSUN_RELEASE_NAME:-bosun}
 
 if [ -z "${KUBECONFIG:-}" ] && [ -f "helm/ci/kubeconfig" ]; then

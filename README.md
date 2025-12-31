@@ -10,7 +10,7 @@ This chart installs the Bosun on-prem stack (Bow, Stern, Quak) with optional hel
 
 ```
 helm install bosun helm/ \
-  --namespace fluyt \
+  --namespace bosun \
   --create-namespace
 ```
 
@@ -19,9 +19,9 @@ helm install bosun helm/ \
 For a local/demo install with bundled services and dummy secrets:
 
 ```
-kubectl create namespace fluyt
-kubectl -n fluyt apply -f helm/examples/quickstart-secrets.yaml
-helm install bosun helm/ --namespace fluyt
+kubectl create namespace bosun
+kubectl -n bosun apply -f helm/examples/quickstart-secrets.yaml
+helm install bosun helm/ --namespace bosun
 ```
 
 Replace the dummy values before production use.
@@ -68,6 +68,31 @@ qdrant:
 
 - Postgres: set `stern.database.url` or `stern.database.existingSecret` + `existingSecretKey`.
 - Redis/Qdrant: set `stern.env.REDIS_URL`, `quak.env.REDIS_URL`, `quak.env.REDIS_INDEXING_URL`, `quak.env.QDRANT_URL`.
+
+## Images and versions
+
+All Bosun components (Bow, Stern, Quak) must use the same version tag.
+Set a single tag via:
+
+```
+global:
+  image:
+    tag: "2025.01.01"
+```
+
+Repositories remain configurable per component:
+
+```
+bow:
+  image:
+    repository: ghcr.io/bosun-ai/fluyt/bow
+stern:
+  image:
+    repository: ghcr.io/bosun-ai/fluyt/stern
+quak:
+  image:
+    repository: ghcr.io/bosun-ai/fluyt/quak
+```
 
 ## Billing defaults (on-prem)
 

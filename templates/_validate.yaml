@@ -1,0 +1,13 @@
+{{- $globalTag := .Values.global.image.tag | default "" -}}
+{{- $bowTag := default $globalTag .Values.bow.image.tag -}}
+{{- $sternTag := default $globalTag .Values.stern.image.tag -}}
+{{- $quakTag := default $globalTag .Values.quak.image.tag -}}
+{{- if eq $bowTag "" -}}
+{{- fail "image tag must be set; set global.image.tag (default \"latest\") or set bow/stern/quak image tags to the same non-empty value" -}}
+{{- end -}}
+{{- if ne $bowTag $sternTag -}}
+{{- fail (printf "bow.image.tag (%s) and stern.image.tag (%s) must match; set global.image.tag to enforce a single version" $bowTag $sternTag) -}}
+{{- end -}}
+{{- if ne $bowTag $quakTag -}}
+{{- fail (printf "bow.image.tag (%s) and quak.image.tag (%s) must match; set global.image.tag to enforce a single version" $bowTag $quakTag) -}}
+{{- end -}}

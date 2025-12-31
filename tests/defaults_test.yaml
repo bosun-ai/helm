@@ -352,7 +352,7 @@ tests:
   - it: overrides stern image tag
     template: stern/deployment.yaml
     set:
-      stern.image.tag: 2025.01.01
+      global.image.tag: 2025.01.01
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image

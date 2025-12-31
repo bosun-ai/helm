@@ -60,9 +60,10 @@ spec:
       affinity:
         {{- toYaml .Values.global.affinity | nindent 8 }}
 {{- end }}
+      {{- $imageTag := default .Values.global.image.tag .Values.bow.image.tag }}
       containers:
         - name: bow
-          image: "{{ .Values.bow.image.repository }}:{{ .Values.bow.image.tag }}"
+          image: "{{ .Values.bow.image.repository }}:{{ $imageTag }}"
           imagePullPolicy: {{ .Values.bow.image.pullPolicy }}
 {{- with .Values.bow.command }}
           command:

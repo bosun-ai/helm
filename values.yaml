@@ -1,5 +1,7 @@
 global:
   namespace: ""
+  image:
+    tag: latest
   imagePullSecrets: []
   labels: {}
   annotations: {}
@@ -19,7 +21,7 @@ bow:
   replicas: 2
   image:
     repository: ghcr.io/bosun-ai/fluyt/bow
-    tag: latest
+    tag: ""
     pullPolicy: IfNotPresent
   command: []
   args: []
@@ -71,7 +73,7 @@ stern:
   replicas: 2
   image:
     repository: ghcr.io/bosun-ai/fluyt/stern
-    tag: latest
+    tag: ""
     pullPolicy: IfNotPresent
   command: []
   args: []
@@ -209,7 +211,7 @@ quak:
   serviceAccountName: ""
   image:
     repository: ghcr.io/bosun-ai/fluyt/quak
-    tag: latest
+    tag: ""
     pullPolicy: IfNotPresent
   command: []
   args: []

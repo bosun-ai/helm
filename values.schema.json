@@ -8,6 +8,13 @@
       "additionalProperties": true,
       "properties": {
         "namespace": { "type": "string" },
+        "image": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "tag": { "type": "string" }
+          }
+        },
         "imagePullSecrets": {
           "type": "array",
           "items": { "type": "string" }
