@@ -3,10 +3,21 @@
 This chart installs the Bosun on-prem stack (Bow, Stern, Quak) with optional helpers
 (prepull, executor overprovisioner, executor storage class).
 
-## Quick start
+## Quickstart (minimal choices)
 
-1) Create required secrets in the release namespace.
-2) Install:
+You must choose:
+- SCM mode: `github` (default) or `gitlab`.
+- Secrets: provide `stern-secrets`, `quak-secrets`, and the SCM secret for the chosen mode.
+- External services: keep bundled Postgres/Redis/Qdrant (default) or point to your own.
+
+Then do:
+
+```
+kubectl create namespace bosun
+kubectl -n bosun apply -f ./your-secrets.yaml
+```
+
+Install for GitHub mode (default):
 
 ```
 helm install bosun helm/ \
@@ -14,7 +25,23 @@ helm install bosun helm/ \
   --create-namespace
 ```
 
-### Zero-config quickstart (non-production)
+Install for GitLab mode:
+
+```
+helm install bosun helm/ \
+  --namespace bosun \
+  --create-namespace \
+  --set scm.mode=gitlab \
+  --set scm.gitlab.patSecretName=gitlab-secrets
+```
+
+Verify:
+
+```
+kubectl -n bosun get pods
+```
+
+## Zero-config quickstart (non-production)
 
 For a local/demo install with bundled services and dummy secrets:
 
@@ -26,24 +53,55 @@ helm install bosun helm/ --namespace bosun
 
 Replace the dummy values before production use.
 
-## Required secrets (external)
+## Required secrets (explicit values)
 
-The chart assumes most secrets are managed outside Helm.
+The chart expects these values to be provided as Kubernetes Secrets.
+Build them explicitly so it is clear what each value is used for.
 
-- `stern-secrets`
-  - `SECRET_KEY_BASE`
-  - `REDIS_URL` (only if using external Redis)
-  - `DATABASE_URL` (only if using external Postgres and `stern.database.*` is not set)
-- `quak-secrets`
-  - `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `TAVILY_API_KEY`
-  - (Redis/Qdrant URLs are derived by default; only set if using external services)
-- `github-secrets`
-  - `GITHUB_APP_NAME`
-  - `GITHUB_APP_ID`
-  - `GITHUB_APP_KEY`
-  - `GITHUB_APP_CLIENT_ID`
-  - `GITHUB_APP_CLIENT_SECRET`
-  - `GITHUB_REDIRECT_URI`
+Stern (Rails app):
+- `SECRET_KEY_BASE`: Rails secret key base.
+- `DATABASE_URL`: only if using external Postgres and `stern.database.*` is not set.
+- `REDIS_URL`: only if using external Redis.
+
+```
+kubectl -n bosun create secret generic stern-secrets \
+  --from-literal=SECRET_KEY_BASE=... \
+  --from-literal=DATABASE_URL=... \
+  --from-literal=REDIS_URL=...
+```
+
+Quak (worker/API):
+- `OPENAI_API_KEY` and/or `ANTHROPIC_API_KEY` for LLM providers.
+- `TAVILY_API_KEY` (if using Tavily search).
+- `REDIS_URL`, `REDIS_INDEXING_URL`, `QDRANT_URL`: only if using external services.
+
+```
+kubectl -n bosun create secret generic quak-secrets \
+  --from-literal=OPENAI_API_KEY=... \
+  --from-literal=ANTHROPIC_API_KEY=... \
+  --from-literal=TAVILY_API_KEY=... \
+  --from-literal=REDIS_URL=... \
+  --from-literal=REDIS_INDEXING_URL=... \
+  --from-literal=QDRANT_URL=...
+```
+
+GitHub mode secrets (GitHub App + OAuth):
+- `GITHUB_APP_NAME`
+- `GITHUB_APP_ID`
+- `GITHUB_APP_KEY`
+- `GITHUB_APP_CLIENT_ID`
+- `GITHUB_APP_CLIENT_SECRET`
+- `GITHUB_REDIRECT_URI`
+
+```
+kubectl -n bosun create secret generic github-secrets \
+  --from-literal=GITHUB_APP_NAME=... \
+  --from-literal=GITHUB_APP_ID=... \
+  --from-literal=GITHUB_APP_KEY=... \
+  --from-literal=GITHUB_APP_CLIENT_ID=... \
+  --from-literal=GITHUB_APP_CLIENT_SECRET=... \
+  --from-literal=GITHUB_REDIRECT_URI=...
+```
 
 ## SCM mode (GitHub or GitLab)
 
