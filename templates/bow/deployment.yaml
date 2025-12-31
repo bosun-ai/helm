@@ -62,6 +62,14 @@ spec:
         - name: bow
           image: "{{ .Values.bow.image.repository }}:{{ .Values.bow.image.tag }}"
           imagePullPolicy: {{ .Values.bow.image.pullPolicy }}
+{{- with .Values.bow.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+{{- end }}
+{{- with .Values.bow.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+{{- end }}
           envFrom:
             - configMapRef:
                 name: {{ include "bosun.componentFullname" (dict "root" . "component" "bow") }}-env

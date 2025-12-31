@@ -21,6 +21,8 @@ bow:
     repository: ghcr.io/bosun-ai/fluyt/bow
     tag: latest
     pullPolicy: IfNotPresent
+  command: []
+  args: []
   containerPort: 80
   terminationGracePeriodSeconds: 30
   env:
@@ -71,6 +73,8 @@ stern:
     repository: ghcr.io/bosun-ai/fluyt/stern
     tag: latest
     pullPolicy: IfNotPresent
+  command: []
+  args: []
   containerPort: 3000
   terminationGracePeriodSeconds: 120
   env:
@@ -143,10 +147,18 @@ stern:
       enabled: true
       deletePolicy: before-hook-creation,hook-succeeded
     command:
-      - bundle
-      - exec
-      - rails
-      - db:migrate
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        bundle exec rails db:create
+        bundle exec rails db:create:cache
+        bundle exec rails db:create:queue
+        bundle exec rails db:create:cable
+        bundle exec rails db:migrate
+        bundle exec rails db:migrate:cache
+        bundle exec rails db:migrate:queue
+        bundle exec rails db:migrate:cable
     backoffLimit: 3
     ttlSecondsAfterFinished: 3600
   billingWorker:
@@ -199,6 +211,8 @@ quak:
     repository: ghcr.io/bosun-ai/fluyt/quak
     tag: latest
     pullPolicy: IfNotPresent
+  command: []
+  args: []
   containerPort: 3001
   terminationGracePeriodSeconds: 1800
   env:

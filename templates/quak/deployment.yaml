@@ -66,6 +66,14 @@ spec:
         - name: quak
           image: "{{ .Values.quak.image.repository }}:{{ .Values.quak.image.tag }}"
           imagePullPolicy: {{ .Values.quak.image.pullPolicy }}
+{{- with .Values.quak.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+{{- end }}
+{{- with .Values.quak.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+{{- end }}
           envFrom:
             - configMapRef:
                 name: {{ include "bosun.componentFullname" (dict "root" . "component" "quak") }}-env

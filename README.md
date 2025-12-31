@@ -78,10 +78,16 @@ The lightweight harness lives in `helm/ci/` and uses:
 Run:
 
 ```
-helm/ci/k3d-up.sh
-helm/ci/e2e-install.sh
+K3D_PLATFORM=linux/amd64 helm/ci/k3d-up.sh
+GHCR_USERNAME=... GHCR_TOKEN=... helm/ci/e2e-install.sh
 helm/ci/e2e-smoke.sh
 helm/ci/k3d-down.sh
 ```
 
 Set `E2E_SMOKE=false` to skip smoke checks in `e2e-install.sh`.
+If you already have an image pull secret, set `USE_IMAGE_PULL_SECRET=true` and `IMAGE_PULL_SECRET_NAME=...`
+to inject it into the Helm release.
+
+`k3d-up.sh` writes a kubeconfig to `helm/ci/kubeconfig` and the other scripts will use it automatically
+if `KUBECONFIG` is not already set.
+Use `K3D_PLATFORM=linux/amd64` on Apple Silicon if the Bosun images are not published for arm64.

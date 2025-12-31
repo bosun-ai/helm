@@ -38,6 +38,8 @@
             "pullPolicy": { "type": "string", "enum": ["Always", "IfNotPresent", "Never"] }
           }
         },
+        "command": { "type": "array", "items": { "type": "string" } },
+        "args": { "type": "array", "items": { "type": "string" } },
         "containerPort": { "type": "integer" },
         "terminationGracePeriodSeconds": { "type": "integer" },
         "env": {
@@ -94,6 +96,8 @@
             "pullPolicy": { "type": "string", "enum": ["Always", "IfNotPresent", "Never"] }
           }
         },
+        "command": { "type": "array", "items": { "type": "string" } },
+        "args": { "type": "array", "items": { "type": "string" } },
         "containerPort": { "type": "integer" },
         "terminationGracePeriodSeconds": { "type": "integer" },
         "env": {
@@ -199,6 +203,8 @@
             "pullPolicy": { "type": "string", "enum": ["Always", "IfNotPresent", "Never"] }
           }
         },
+        "command": { "type": "array", "items": { "type": "string" } },
+        "args": { "type": "array", "items": { "type": "string" } },
         "containerPort": { "type": "integer" },
         "terminationGracePeriodSeconds": { "type": "integer" },
         "env": {

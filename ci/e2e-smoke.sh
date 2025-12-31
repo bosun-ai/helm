@@ -4,6 +4,10 @@ set -euo pipefail
 NAMESPACE=${BOSUN_NAMESPACE:-fluyt}
 RELEASE_NAME=${BOSUN_RELEASE_NAME:-bosun}
 
+if [ -z "${KUBECONFIG:-}" ] && [ -f "helm/ci/kubeconfig" ]; then
+  export KUBECONFIG="helm/ci/kubeconfig"
+fi
+
 stern_service=$(kubectl -n "$NAMESPACE" get svc \
   -l app.kubernetes.io/instance="${RELEASE_NAME}",app.kubernetes.io/component=stern \
   -o jsonpath='{.items[0].metadata.name}')
