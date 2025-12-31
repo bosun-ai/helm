@@ -159,6 +159,179 @@ tests:
           count: 0
 
 ---
+suite: ingress enabled
+templates:
+  - bow/ingress.yaml
+  - stern/ingress.yaml
+tests:
+  - it: renders bow ingress when enabled
+    template: bow/ingress.yaml
+    set:
+      bow.ingress.enabled: true
+    asserts:
+      - isKind:
+          of: Ingress
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-bosun-bow
+  - it: renders stern ingress when enabled
+    template: stern/ingress.yaml
+    set:
+      stern.ingress.enabled: true
+    asserts:
+      - isKind:
+          of: Ingress
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-bosun-stern
+
+---
+suite: prepull enabled
+templates:
+  - prepull-daemonset.yaml
+tests:
+  - it: renders prepull daemonset when enabled
+    set:
+      prepull.enabled: true
+    asserts:
+      - isKind:
+          of: DaemonSet
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-bosun-image-prepull
+
+---
+suite: overprovisioner enabled
+templates:
+  - overprovisioner.yaml
+tests:
+  - it: renders priorityclass and deployment when enabled
+    set:
+      overprovisioner.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 2
+      - equal:
+          path: kind
+          value: PriorityClass
+        documentIndex: 0
+      - equal:
+          path: metadata.name
+          value: overprovisioning-low
+        documentIndex: 0
+      - equal:
+          path: kind
+          value: Deployment
+        documentIndex: 1
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-bosun-executor-overprovisioner
+        documentIndex: 1
+
+---
+suite: storageclass enabled
+templates:
+  - storageclass.yaml
+tests:
+  - it: renders storageclass when enabled
+    set:
+      storageClass.enabled: true
+    asserts:
+      - isKind:
+          of: StorageClass
+      - equal:
+          path: metadata.name
+          value: bosun-executor-encrypted
+
+---
+suite: quak executor namespace
+templates:
+  - quak/rbac.yaml
+tests:
+  - it: renders executor namespace and rbac
+    set:
+      quak.executorNamespace.create: true
+    asserts:
+      - hasDocuments:
+          count: 4
+      - equal:
+          path: kind
+          value: Namespace
+        documentIndex: 0
+      - equal:
+          path: metadata.name
+          value: tasks
+        documentIndex: 0
+      - equal:
+          path: kind
+          value: ServiceAccount
+        documentIndex: 1
+      - equal:
+          path: kind
+          value: Role
+        documentIndex: 2
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-bosun-quak-executor
+        documentIndex: 2
+      - equal:
+          path: metadata.namespace
+          value: tasks
+        documentIndex: 2
+      - equal:
+          path: kind
+          value: RoleBinding
+        documentIndex: 3
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-bosun-quak-executor
+        documentIndex: 3
+      - equal:
+          path: metadata.namespace
+          value: tasks
+        documentIndex: 3
+
+---
+suite: stern database url override
+templates:
+  - stern/deployment.yaml
+tests:
+  - it: uses direct database url when set
+    set:
+      stern.database.url: postgresql://user:pass@db.example.com:5432/app
+      stern.database.existingSecret: ""
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].name
+          value: DATABASE_URL
+      - equal:
+          path: spec.template.spec.containers[0].env[0].value
+          value: postgresql://user:pass@db.example.com:5432/app
+
+---
+suite: env configmaps
+templates:
+  - stern/configmap.yaml
+  - quak/configmap.yaml
+tests:
+  - it: renders stern env overrides
+    template: stern/configmap.yaml
+    set:
+      stern.env.EXTRA_SETTING: enabled
+    asserts:
+      - equal:
+          path: data.EXTRA_SETTING
+          value: enabled
+  - it: renders quak env overrides
+    template: quak/configmap.yaml
+    set:
+      quak.env.EXTRA_SETTING: enabled
+    asserts:
+      - equal:
+          path: data.EXTRA_SETTING
+          value: enabled
+
+---
 suite: image tag override
 templates:
   - stern/deployment.yaml

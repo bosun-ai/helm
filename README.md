@@ -62,3 +62,26 @@ helm lint helm/
 helm template helm/
 helm unittest helm/
 ```
+
+`helm unittest` requires the helm-unittest plugin:
+
+```
+helm plugin install https://github.com/helm-unittest/helm-unittest --verify=false
+```
+
+## E2E (k3d)
+
+The lightweight harness lives in `helm/ci/` and uses:
+- `helm/ci/e2e-deps.yaml` for Redis + Qdrant
+- `helm/ci/e2e-secrets.yaml` for placeholder secrets
+
+Run:
+
+```
+helm/ci/k3d-up.sh
+helm/ci/e2e-install.sh
+helm/ci/e2e-smoke.sh
+helm/ci/k3d-down.sh
+```
+
+Set `E2E_SMOKE=false` to skip smoke checks in `e2e-install.sh`.

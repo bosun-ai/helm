@@ -16,6 +16,9 @@ stern:
     enabled: false
   migrations:
     enabled: false
+  database:
+    url: postgresql://user:pass@postgres:5432/app
+    existingSecret: ""
   env:
     REDIS_URL: redis://redis:6379
 
