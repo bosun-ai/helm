@@ -1,0 +1,28 @@
+{{- if .Values.qdrant.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "bosun.componentFullname" (dict "root" . "component" "qdrant") }}
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: qdrant
+{{- with .Values.global.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: {{ .Values.qdrant.service.httpPort }}
+      targetPort: http
+      protocol: TCP
+    - name: grpc
+      port: {{ .Values.qdrant.service.grpcPort }}
+      targetPort: grpc
+      protocol: TCP
+  selector:
+    {{- include "bosun.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: qdrant
+{{- end }}

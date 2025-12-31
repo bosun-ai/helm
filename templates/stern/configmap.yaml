@@ -12,8 +12,19 @@ metadata:
     {{- toYaml . | nindent 4 }}
 {{- end }}
 data:
-{{- if .Values.stern.env }}
-{{- range $key, $value := .Values.stern.env }}
+{{- $userEnv := .Values.stern.env | default dict }}
+{{- $env := dict }}
+{{- range $key, $value := $userEnv }}
+{{- $_ := set $env $key $value }}
+{{- end }}
+{{- $redisService := include "bosun.componentFullname" (dict "root" . "component" "redis-shared") }}
+{{- $quakService := include "bosun.componentFullname" (dict "root" . "component" "quak") }}
+{{- $sternService := include "bosun.componentFullname" (dict "root" . "component" "stern") }}
+{{- $_ := set $env "REDIS_URL" (default (printf "redis://%s:%d" $redisService (int .Values.redis.shared.service.port)) (get $userEnv "REDIS_URL")) }}
+{{- $_ := set $env "QUAK_URL" (default (printf "http://%s:%d" $quakService (int .Values.quak.service.port)) (get $userEnv "QUAK_URL")) }}
+{{- $_ := set $env "ROOT_URL" (default (printf "http://%s:%d" $sternService (int .Values.stern.service.port)) (get $userEnv "ROOT_URL")) }}
+{{- if $env }}
+{{- range $key, $value := $env }}
   {{ $key }}: {{ $value | quote }}
 {{- end }}
 {{- else }}

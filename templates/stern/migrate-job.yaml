@@ -7,9 +7,10 @@ metadata:
   labels:
     {{- include "bosun.labels" . | nindent 4 }}
     app.kubernetes.io/component: stern-migrate
-{{- if .Values.stern.migrations.hook.enabled }}
+{{- $useHook := and .Values.stern.migrations.hook.enabled (or .Values.stern.database.url .Values.stern.database.existingSecret) }}
+{{- if and $useHook .Release.IsUpgrade }}
   annotations:
-    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook: pre-upgrade
     helm.sh/hook-delete-policy: {{ .Values.stern.migrations.hook.deletePolicy | quote }}
 {{- else if .Values.global.annotations }}
   annotations:
@@ -57,7 +58,8 @@ spec:
             - secretRef:
                 name: {{ . }}
 {{- end }}
-{{- if or .Values.stern.database.url .Values.stern.database.existingSecret }}
+{{- $postgresSecretName := default (printf "%s-auth" (include "bosun.componentFullname" (dict "root" . "component" "postgres"))) .Values.postgres.auth.existingSecret }}
+{{- if or .Values.stern.database.url .Values.stern.database.existingSecret .Values.postgres.enabled }}
           env:
 {{- if .Values.stern.database.url }}
             - name: DATABASE_URL
@@ -68,6 +70,12 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.stern.database.existingSecret }}
                   key: {{ .Values.stern.database.existingSecretKey }}
+{{- else if .Values.postgres.enabled }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $postgresSecretName }}
+                  key: {{ .Values.postgres.auth.baseUrlKey }}
 {{- end }}
 {{- end }}
 {{- end }}

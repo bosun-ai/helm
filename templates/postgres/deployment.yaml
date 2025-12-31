@@ -1,0 +1,98 @@
+{{- if .Values.postgres.enabled }}
+{{- $name := include "bosun.componentFullname" (dict "root" . "component" "postgres") }}
+{{- $secretName := default (printf "%s-auth" $name) .Values.postgres.auth.existingSecret }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgres
+{{- with .Values.global.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  replicas: {{ .Values.postgres.replicas }}
+  selector:
+    matchLabels:
+      {{- include "bosun.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: postgres
+  template:
+    metadata:
+      labels:
+        {{- include "bosun.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: postgres
+{{- if .Values.postgres.podAnnotations }}
+      annotations:
+        {{- toYaml .Values.postgres.podAnnotations | nindent 8 }}
+{{- else if .Values.global.podAnnotations }}
+      annotations:
+        {{- toYaml .Values.global.podAnnotations | nindent 8 }}
+{{- end }}
+    spec:
+{{- if .Values.postgres.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.postgres.nodeSelector | nindent 8 }}
+{{- else if .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.global.nodeSelector | nindent 8 }}
+{{- end }}
+{{- if .Values.postgres.tolerations }}
+      tolerations:
+        {{- toYaml .Values.postgres.tolerations | nindent 8 }}
+{{- else if .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml .Values.global.tolerations | nindent 8 }}
+{{- end }}
+{{- if .Values.postgres.affinity }}
+      affinity:
+        {{- toYaml .Values.postgres.affinity | nindent 8 }}
+{{- else if .Values.global.affinity }}
+      affinity:
+        {{- toYaml .Values.global.affinity | nindent 8 }}
+{{- end }}
+      containers:
+        - name: postgres
+          image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+          imagePullPolicy: {{ .Values.postgres.image.pullPolicy }}
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: {{ .Values.postgres.auth.usernameKey }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: {{ .Values.postgres.auth.passwordKey }}
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: {{ .Values.postgres.auth.databaseKey }}
+          ports:
+            - name: postgres
+              containerPort: {{ .Values.postgres.service.port }}
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+{{- if .Values.postgres.resources }}
+          resources:
+            {{- toYaml .Values.postgres.resources | nindent 12 }}
+{{- else if .Values.global.resources }}
+          resources:
+            {{- toYaml .Values.global.resources | nindent 12 }}
+{{- end }}
+      volumes:
+        - name: data
+{{- if .Values.postgres.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ printf "%s-data" $name }}
+{{- else }}
+          emptyDir: {}
+{{- end }}
+{{- end }}

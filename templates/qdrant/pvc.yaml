@@ -1,0 +1,25 @@
+{{- if and .Values.qdrant.enabled .Values.qdrant.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "bosun.componentFullname" (dict "root" . "component" "qdrant") }}-data
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: qdrant
+{{- with .Values.global.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  accessModes:
+{{- range .Values.qdrant.persistence.accessModes }}
+    - {{ . }}
+{{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.qdrant.persistence.size }}
+{{- if .Values.qdrant.persistence.storageClass }}
+  storageClassName: {{ .Values.qdrant.persistence.storageClass }}
+{{- end }}
+{{- end }}

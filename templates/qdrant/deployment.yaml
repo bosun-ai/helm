@@ -1,0 +1,84 @@
+{{- if .Values.qdrant.enabled }}
+{{- $name := include "bosun.componentFullname" (dict "root" . "component" "qdrant") }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: qdrant
+{{- with .Values.global.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  replicas: {{ .Values.qdrant.replicas }}
+  selector:
+    matchLabels:
+      {{- include "bosun.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: qdrant
+  template:
+    metadata:
+      labels:
+        {{- include "bosun.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: qdrant
+{{- if .Values.qdrant.podAnnotations }}
+      annotations:
+        {{- toYaml .Values.qdrant.podAnnotations | nindent 8 }}
+{{- else if .Values.global.podAnnotations }}
+      annotations:
+        {{- toYaml .Values.global.podAnnotations | nindent 8 }}
+{{- end }}
+    spec:
+{{- if .Values.qdrant.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.qdrant.nodeSelector | nindent 8 }}
+{{- else if .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.global.nodeSelector | nindent 8 }}
+{{- end }}
+{{- if .Values.qdrant.tolerations }}
+      tolerations:
+        {{- toYaml .Values.qdrant.tolerations | nindent 8 }}
+{{- else if .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml .Values.global.tolerations | nindent 8 }}
+{{- end }}
+{{- if .Values.qdrant.affinity }}
+      affinity:
+        {{- toYaml .Values.qdrant.affinity | nindent 8 }}
+{{- else if .Values.global.affinity }}
+      affinity:
+        {{- toYaml .Values.global.affinity | nindent 8 }}
+{{- end }}
+      containers:
+        - name: qdrant
+          image: "{{ .Values.qdrant.image.repository }}:{{ .Values.qdrant.image.tag }}"
+          imagePullPolicy: {{ .Values.qdrant.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.qdrant.service.httpPort }}
+              protocol: TCP
+            - name: grpc
+              containerPort: {{ .Values.qdrant.service.grpcPort }}
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /qdrant/storage
+{{- if .Values.qdrant.resources }}
+          resources:
+            {{- toYaml .Values.qdrant.resources | nindent 12 }}
+{{- else if .Values.global.resources }}
+          resources:
+            {{- toYaml .Values.global.resources | nindent 12 }}
+{{- end }}
+      volumes:
+        - name: data
+{{- if .Values.qdrant.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ printf "%s-data" $name }}
+{{- else }}
+          emptyDir: {}
+{{- end }}
+{{- end }}

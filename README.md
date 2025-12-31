@@ -38,6 +38,20 @@ The chart assumes secrets are managed outside Helm.
 - `fluyt-envelope-encr-secrets`
   - envelope encryption keys
 
+## Bundled services (default)
+
+Postgres, Redis (shared + indexing), and Qdrant are installed alongside the chart by default.
+Disable any of them in `values.yaml` if you are providing external services.
+
+```
+postgres:
+  enabled: false
+redis:
+  enabled: false
+qdrant:
+  enabled: false
+```
+
 ## Bring-your-own services
 
 - Postgres: set `stern.database.url` or `stern.database.existingSecret` + `existingSecretKey`.
@@ -72,14 +86,15 @@ helm plugin install https://github.com/helm-unittest/helm-unittest --verify=fals
 ## E2E (k3d)
 
 The lightweight harness lives in `helm/ci/` and uses:
-- `helm/ci/e2e-deps.yaml` for Redis + Qdrant
 - `helm/ci/e2e-secrets.yaml` for placeholder secrets
+- `helm/ci/e2e-deps.yaml` is optional (set `E2E_DEPS=true`) if you want standalone deps
+  instead of the bundled services
 
 Run:
 
 ```
 K3D_PLATFORM=linux/amd64 helm/ci/k3d-up.sh
-GHCR_USERNAME=... GHCR_TOKEN=... helm/ci/e2e-install.sh
+GHCR_USERNAME=... GHCR_TOKEN=... helm/ci/e2e-run.sh
 helm/ci/e2e-smoke.sh
 helm/ci/k3d-down.sh
 ```

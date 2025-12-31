@@ -1,0 +1,102 @@
+{{- if and .Values.redis.enabled .Values.redis.indexing.enabled }}
+{{- $name := include "bosun.componentFullname" (dict "root" . "component" "redis-indexing") }}
+{{- if .Values.redis.indexing.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $name }}-data
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: redis-indexing
+{{- with .Values.global.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  accessModes:
+{{- range .Values.redis.indexing.persistence.accessModes }}
+    - {{ . }}
+{{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.redis.indexing.persistence.size }}
+{{- if .Values.redis.indexing.persistence.storageClass }}
+  storageClassName: {{ .Values.redis.indexing.persistence.storageClass }}
+{{- end }}
+---
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: redis-indexing
+{{- with .Values.global.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  replicas: {{ .Values.redis.indexing.replicas }}
+  selector:
+    matchLabels:
+      {{- include "bosun.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: redis-indexing
+  template:
+    metadata:
+      labels:
+        {{- include "bosun.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: redis-indexing
+    spec:
+      containers:
+        - name: redis
+          image: "{{ .Values.redis.indexing.image.repository }}:{{ .Values.redis.indexing.image.tag }}"
+          imagePullPolicy: {{ .Values.redis.indexing.image.pullPolicy }}
+          ports:
+            - name: redis
+              containerPort: {{ .Values.redis.indexing.service.port }}
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /data
+{{- if .Values.redis.indexing.resources }}
+          resources:
+            {{- toYaml .Values.redis.indexing.resources | nindent 12 }}
+{{- else if .Values.global.resources }}
+          resources:
+            {{- toYaml .Values.global.resources | nindent 12 }}
+{{- end }}
+      volumes:
+        - name: data
+{{- if .Values.redis.indexing.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ $name }}-data
+{{- else }}
+          emptyDir: {}
+{{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: redis-indexing
+{{- with .Values.global.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: redis
+      port: {{ .Values.redis.indexing.service.port }}
+      targetPort: redis
+      protocol: TCP
+  selector:
+    {{- include "bosun.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: redis-indexing
+{{- end }}

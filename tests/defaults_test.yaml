@@ -27,10 +27,10 @@ tests:
           value: RELEASE-NAME-bosun-stern
       - equal:
           path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.name
-          value: postgres-app
+          value: RELEASE-NAME-bosun-postgres-auth
       - equal:
           path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.key
-          value: uri
+          value: baseUrl
 
 ---
 suite: quak deployment
@@ -75,7 +75,7 @@ tests:
           value: RELEASE-NAME-bosun-stern-migrate
       - equal:
           path: spec.template.spec.containers[0].command[0]
-          value: bundle
+          value: /bin/sh
 
 ---
 suite: services
@@ -343,3 +343,237 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].image
           value: ghcr.io/bosun-ai/fluyt/stern:2025.01.01
+
+---
+suite: postgres resources
+templates:
+  - postgres/secret.yaml
+  - postgres/deployment.yaml
+  - postgres/service.yaml
+tests:
+  - it: renders postgres secret
+    template: postgres/secret.yaml
+    asserts:
+      - isKind:
+          of: Secret
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-bosun-postgres-auth
+      - equal:
+          path: stringData.baseUrl
+          value: postgresql://bosun:bosun@RELEASE-NAME-bosun-postgres:5432/
+  - it: renders postgres deployment
+    template: postgres/deployment.yaml
+    asserts:
+      - isKind:
+          of: Deployment
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-bosun-postgres
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.name
+          value: RELEASE-NAME-bosun-postgres-auth
+  - it: renders postgres service
+    template: postgres/service.yaml
+    asserts:
+      - isKind:
+          of: Service
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-bosun-postgres
+
+---
+suite: postgres pvc disabled
+templates:
+  - postgres/pvc.yaml
+tests:
+  - it: does not render postgres pvc by default
+    asserts:
+      - hasDocuments:
+          count: 0
+
+---
+suite: redis shared resources
+templates:
+  - redis/shared.yaml
+tests:
+  - it: renders redis shared deployment and service
+    asserts:
+      - hasDocuments:
+          count: 2
+      - equal:
+          path: kind
+          value: Deployment
+        documentIndex: 0
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-bosun-redis-shared
+        documentIndex: 0
+      - equal:
+          path: kind
+          value: Service
+        documentIndex: 1
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-bosun-redis-shared
+        documentIndex: 1
+
+---
+suite: redis indexing resources
+templates:
+  - redis/indexing.yaml
+tests:
+  - it: renders redis indexing deployment and service
+    asserts:
+      - hasDocuments:
+          count: 2
+      - equal:
+          path: kind
+          value: Deployment
+        documentIndex: 0
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-bosun-redis-indexing
+        documentIndex: 0
+      - equal:
+          path: kind
+          value: Service
+        documentIndex: 1
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-bosun-redis-indexing
+        documentIndex: 1
+
+---
+suite: qdrant resources
+templates:
+  - qdrant/deployment.yaml
+  - qdrant/service.yaml
+tests:
+  - it: renders qdrant deployment
+    template: qdrant/deployment.yaml
+    asserts:
+      - isKind:
+          of: Deployment
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-bosun-qdrant
+  - it: renders qdrant service
+    template: qdrant/service.yaml
+    asserts:
+      - isKind:
+          of: Service
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-bosun-qdrant
+
+---
+suite: qdrant pvc disabled
+templates:
+  - qdrant/pvc.yaml
+tests:
+  - it: does not render qdrant pvc by default
+    asserts:
+      - hasDocuments:
+          count: 0
+
+---
+suite: configmap defaults
+templates:
+  - bow/configmap.yaml
+  - stern/configmap.yaml
+  - quak/configmap.yaml
+tests:
+  - it: defaults bow backend url to stern service
+    template: bow/configmap.yaml
+    asserts:
+      - equal:
+          path: data.BACKEND_URL
+          value: http://RELEASE-NAME-bosun-stern:3000
+  - it: defaults stern service urls
+    template: stern/configmap.yaml
+    asserts:
+      - equal:
+          path: data.REDIS_URL
+          value: redis://RELEASE-NAME-bosun-redis-shared:6379
+      - equal:
+          path: data.QUAK_URL
+          value: http://RELEASE-NAME-bosun-quak:3001
+      - equal:
+          path: data.ROOT_URL
+          value: http://RELEASE-NAME-bosun-stern:3000
+  - it: defaults quak service urls
+    template: quak/configmap.yaml
+    asserts:
+      - equal:
+          path: data.REDIS_URL
+          value: redis://RELEASE-NAME-bosun-redis-shared:6379
+      - equal:
+          path: data.REDIS_INDEXING_URL
+          value: redis://RELEASE-NAME-bosun-redis-indexing:6379
+      - equal:
+          path: data.QDRANT_URL
+          value: http://RELEASE-NAME-bosun-qdrant:6334
+
+---
+suite: disable dependencies
+templates:
+  - postgres/deployment.yaml
+  - postgres/service.yaml
+  - redis/shared.yaml
+  - redis/indexing.yaml
+  - qdrant/deployment.yaml
+tests:
+  - it: does not render dependency resources when disabled
+    set:
+      postgres.enabled: false
+      redis.enabled: false
+      qdrant.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+---
+suite: external service overrides
+templates:
+  - stern/deployment.yaml
+  - stern/configmap.yaml
+  - quak/configmap.yaml
+tests:
+  - it: uses external postgres when bundled postgres disabled
+    template: stern/deployment.yaml
+    set:
+      postgres.enabled: false
+      stern.database.url: postgresql://user:pass@db.example.com:5432/
+      stern.database.existingSecret: ""
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].value
+          value: postgresql://user:pass@db.example.com:5432/
+  - it: uses external redis and qdrant urls when disabled
+    template: quak/configmap.yaml
+    set:
+      redis.enabled: false
+      qdrant.enabled: false
+      quak.env.REDIS_URL: redis://redis.example.com:6379
+      quak.env.REDIS_INDEXING_URL: redis://redis-index.example.com:6379
+      quak.env.QDRANT_URL: http://qdrant.example.com:6334
+    asserts:
+      - equal:
+          path: data.REDIS_URL
+          value: redis://redis.example.com:6379
+      - equal:
+          path: data.REDIS_INDEXING_URL
+          value: redis://redis-index.example.com:6379
+      - equal:
+          path: data.QDRANT_URL
+          value: http://qdrant.example.com:6334
+  - it: uses external redis url for stern when bundled redis disabled
+    template: stern/configmap.yaml
+    set:
+      redis.enabled: false
+      stern.env.REDIS_URL: redis://redis.example.com:6379
+    asserts:
+      - equal:
+          path: data.REDIS_URL
+          value: redis://redis.example.com:6379

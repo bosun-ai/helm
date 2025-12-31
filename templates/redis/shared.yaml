@@ -1,0 +1,102 @@
+{{- if and .Values.redis.enabled .Values.redis.shared.enabled }}
+{{- $name := include "bosun.componentFullname" (dict "root" . "component" "redis-shared") }}
+{{- if .Values.redis.shared.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $name }}-data
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: redis-shared
+{{- with .Values.global.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  accessModes:
+{{- range .Values.redis.shared.persistence.accessModes }}
+    - {{ . }}
+{{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.redis.shared.persistence.size }}
+{{- if .Values.redis.shared.persistence.storageClass }}
+  storageClassName: {{ .Values.redis.shared.persistence.storageClass }}
+{{- end }}
+---
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: redis-shared
+{{- with .Values.global.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  replicas: {{ .Values.redis.shared.replicas }}
+  selector:
+    matchLabels:
+      {{- include "bosun.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: redis-shared
+  template:
+    metadata:
+      labels:
+        {{- include "bosun.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: redis-shared
+    spec:
+      containers:
+        - name: redis
+          image: "{{ .Values.redis.shared.image.repository }}:{{ .Values.redis.shared.image.tag }}"
+          imagePullPolicy: {{ .Values.redis.shared.image.pullPolicy }}
+          ports:
+            - name: redis
+              containerPort: {{ .Values.redis.shared.service.port }}
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /data
+{{- if .Values.redis.shared.resources }}
+          resources:
+            {{- toYaml .Values.redis.shared.resources | nindent 12 }}
+{{- else if .Values.global.resources }}
+          resources:
+            {{- toYaml .Values.global.resources | nindent 12 }}
+{{- end }}
+      volumes:
+        - name: data
+{{- if .Values.redis.shared.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ $name }}-data
+{{- else }}
+          emptyDir: {}
+{{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  namespace: {{ include "bosun.namespace" . }}
+  labels:
+    {{- include "bosun.labels" . | nindent 4 }}
+    app.kubernetes.io/component: redis-shared
+{{- with .Values.global.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: redis
+      port: {{ .Values.redis.shared.service.port }}
+      targetPort: redis
+      protocol: TCP
+  selector:
+    {{- include "bosun.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: redis-shared
+{{- end }}

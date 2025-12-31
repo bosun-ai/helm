@@ -80,7 +80,8 @@ spec:
             - secretRef:
                 name: {{ . }}
 {{- end }}
-{{- if or .Values.stern.database.url .Values.stern.database.existingSecret }}
+{{- $postgresSecretName := default (printf "%s-auth" (include "bosun.componentFullname" (dict "root" . "component" "postgres"))) .Values.postgres.auth.existingSecret }}
+{{- if or .Values.stern.database.url .Values.stern.database.existingSecret .Values.postgres.enabled }}
           env:
 {{- if .Values.stern.database.url }}
             - name: DATABASE_URL
@@ -91,6 +92,12 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.stern.database.existingSecret }}
                   key: {{ .Values.stern.database.existingSecretKey }}
+{{- else if .Values.postgres.enabled }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $postgresSecretName }}
+                  key: {{ .Values.postgres.auth.baseUrlKey }}
 {{- end }}
 {{- end }}
 {{- with .Values.stern.billingWorker.probes.readiness }}

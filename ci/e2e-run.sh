@@ -1,22 +1,26 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+CHART_DIR=$(cd "${SCRIPT_DIR}/.." && pwd)
+
 CLUSTER_NAME=${K3D_CLUSTER_NAME:-bosun-e2e}
 NAMESPACE=${BOSUN_NAMESPACE:-fluyt}
 RELEASE_NAME=${BOSUN_RELEASE_NAME:-bosun}
 IMAGE_PULL_SECRET_NAME=${IMAGE_PULL_SECRET_NAME:-ghcr-pull}
 USE_IMAGE_PULL_SECRET=${USE_IMAGE_PULL_SECRET:-false}
+E2E_DEPS=${E2E_DEPS:-false}
 
-if [ -z "${KUBECONFIG:-}" ] && [ -f "helm/ci/kubeconfig" ]; then
-  export KUBECONFIG="helm/ci/kubeconfig"
+if [ -z "${KUBECONFIG:-}" ] && [ -f "${SCRIPT_DIR}/kubeconfig" ]; then
+  export KUBECONFIG="${SCRIPT_DIR}/kubeconfig"
 fi
 
 kubectl create namespace "${NAMESPACE}" --dry-run=client -o yaml | kubectl apply -f -
 
-if [ -f "helm/ci/e2e-secrets.yaml" ]; then
-  kubectl -n "${NAMESPACE}" apply -f helm/ci/e2e-secrets.yaml
+if [ -f "${SCRIPT_DIR}/e2e-secrets.yaml" ]; then
+  kubectl -n "${NAMESPACE}" apply -f "${SCRIPT_DIR}/e2e-secrets.yaml"
 else
-  echo "helm/ci/e2e-secrets.yaml not found; skipping secret creation."
+  echo "e2e-secrets.yaml not found; skipping secret creation."
 fi
 
 if [ -n "${GHCR_USERNAME:-}" ] && [ -n "${GHCR_TOKEN:-}" ]; then
@@ -29,17 +33,17 @@ if [ -n "${GHCR_USERNAME:-}" ] && [ -n "${GHCR_TOKEN:-}" ]; then
   USE_IMAGE_PULL_SECRET=true
 fi
 
-if [ -f "helm/ci/e2e-deps.yaml" ]; then
-  kubectl -n "${NAMESPACE}" apply -f helm/ci/e2e-deps.yaml
+if [ "${E2E_DEPS}" = "true" ] && [ -f "${SCRIPT_DIR}/e2e-deps.yaml" ]; then
+  kubectl -n "${NAMESPACE}" apply -f "${SCRIPT_DIR}/e2e-deps.yaml"
   kubectl -n "${NAMESPACE}" wait --for=condition=Available deployment \
     -l app.kubernetes.io/part-of=bosun-e2e-deps --timeout=10m
 else
-  echo "helm/ci/e2e-deps.yaml not found; skipping dependency deploys."
+  echo "Skipping dependency deploys (E2E_DEPS=false)."
 fi
 
-helm upgrade --install "${RELEASE_NAME}" helm/ \
+helm upgrade --install "${RELEASE_NAME}" "${CHART_DIR}" \
   --namespace "${NAMESPACE}" \
-  --values helm/ci/e2e-values.yaml \
+  --values "${SCRIPT_DIR}/e2e-values.yaml" \
   $([ "${USE_IMAGE_PULL_SECRET}" = "true" ] && echo "--set global.imagePullSecrets[0]=${IMAGE_PULL_SECRET_NAME}")
 
 kubectl -n "${NAMESPACE}" wait --for=condition=Available deployment \
@@ -65,6 +69,6 @@ if [ -n "${migrate_jobs}" ]; then
   done
 fi
 
-if [ "${E2E_SMOKE:-true}" = "true" ] && [ -f "helm/ci/e2e-smoke.sh" ]; then
-  helm/ci/e2e-smoke.sh
+if [ "${E2E_SMOKE:-true}" = "true" ] && [ -f "${SCRIPT_DIR}/e2e-smoke.sh" ]; then
+  "${SCRIPT_DIR}/e2e-smoke.sh"
 fi

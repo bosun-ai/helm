@@ -9,8 +9,6 @@ global:
 
 bow:
   replicas: 1
-  env:
-    BACKEND_URL: http://bosun-stern:3000
   ingress:
     enabled: false
 
@@ -18,19 +16,8 @@ stern:
   replicas: 1
   ingress:
     enabled: false
-  database:
-    url: postgresql://user:pass@postgres:5432/
-    existingSecret: ""
-  env:
-    REDIS_URL: redis://redis:6379
-    QUAK_URL: http://bosun-quak:3001
-    ROOT_URL: http://bosun-stern:3000
 
 quak:
   replicas: 1
-  env:
-    REDIS_URL: redis://redis:6379
-    REDIS_INDEXING_URL: redis://redis-indexing:6379
-    QDRANT_URL: http://qdrant:6334
   executorNamespace:
     create: true

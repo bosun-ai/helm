@@ -26,7 +26,7 @@ bow:
   containerPort: 80
   terminationGracePeriodSeconds: 30
   env:
-    BACKEND_URL: https://api.bosun.ai
+    BACKEND_URL: ""
     BUN_ENV: production
     NODE_ENV: production
   service:
@@ -79,9 +79,9 @@ stern:
   terminationGracePeriodSeconds: 120
   env:
     RAILS_ENV: production
-    REDIS_URL: redis://redis-shared:6379
-    QUAK_URL: http://quak:3001
-    ROOT_URL: http://stern:3000
+    REDIS_URL: ""
+    QUAK_URL: ""
+    ROOT_URL: ""
     BILLING_DISABLED: "true"
   secrets:
     existing:
@@ -90,7 +90,7 @@ stern:
       - fluyt-envelope-encr-secrets
   database:
     url: ""
-    existingSecret: postgres-app
+    existingSecret: ""
     existingSecretKey: uri
   service:
     type: ClusterIP
@@ -216,9 +216,9 @@ quak:
   containerPort: 3001
   terminationGracePeriodSeconds: 1800
   env:
-    QDRANT_URL: http://qdrant:6334
-    REDIS_URL: redis://redis-shared:6379
-    REDIS_INDEXING_URL: redis://redis-indexing:6379
+    QDRANT_URL: ""
+    REDIS_URL: ""
+    REDIS_INDEXING_URL: ""
     RUST_LOG: quak=debug,kwaak=debug,swiftide=debug,warn
     OTEL_ENABLED: "false"
     KUBERNETES_ENABLED: "true"
@@ -321,3 +321,90 @@ storageClass:
   parameters:
     csi.storage.k8s.io/node-publish-secret-name: executor-volume-encryption
     csi.storage.k8s.io/node-publish-secret-namespace: kube-system
+
+postgres:
+  enabled: true
+  replicas: 1
+  image:
+    repository: postgres
+    tag: 15-alpine
+    pullPolicy: IfNotPresent
+  auth:
+    username: bosun
+    password: bosun
+    database: bosun
+    existingSecret: ""
+    usernameKey: username
+    passwordKey: password
+    databaseKey: database
+    baseUrlKey: baseUrl
+  service:
+    port: 5432
+  persistence:
+    enabled: false
+    size: 10Gi
+    accessModes:
+      - ReadWriteOnce
+    storageClass: ""
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podAnnotations: {}
+
+redis:
+  enabled: true
+  shared:
+    enabled: true
+    replicas: 1
+    image:
+      repository: redis
+      tag: 7-alpine
+      pullPolicy: IfNotPresent
+    service:
+      port: 6379
+    persistence:
+      enabled: false
+      size: 1Gi
+      accessModes:
+        - ReadWriteOnce
+      storageClass: ""
+    resources: {}
+  indexing:
+    enabled: true
+    replicas: 1
+    image:
+      repository: redis
+      tag: 7-alpine
+      pullPolicy: IfNotPresent
+    service:
+      port: 6379
+    persistence:
+      enabled: false
+      size: 1Gi
+      accessModes:
+        - ReadWriteOnce
+      storageClass: ""
+    resources: {}
+
+qdrant:
+  enabled: true
+  replicas: 1
+  image:
+    repository: qdrant/qdrant
+    tag: v1.8.4
+    pullPolicy: IfNotPresent
+  service:
+    httpPort: 6333
+    grpcPort: 6334
+  persistence:
+    enabled: false
+    size: 10Gi
+    accessModes:
+      - ReadWriteOnce
+    storageClass: ""
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podAnnotations: {}
