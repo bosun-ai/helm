@@ -1,10 +1,11 @@
 {{- if .Values.quak.rbac.enabled }}
 {{- $saName := include "bosun.quak.serviceAccountName" . }}
+{{- $executorNamespace := default (include "bosun.namespace" .) .Values.quak.executorNamespace.name }}
 {{- if .Values.quak.executorNamespace.create }}
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: {{ .Values.quak.executorNamespace.name }}
+  name: {{ $executorNamespace }}
 ---
 {{- end }}
 {{- if and $saName (not .Values.quak.serviceAccountName) }}
@@ -27,7 +28,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: {{ include "bosun.componentFullname" (dict "root" . "component" "quak") }}-executor
-  namespace: {{ .Values.quak.executorNamespace.name }}
+  namespace: {{ $executorNamespace }}
   labels:
     {{- include "bosun.labels" . | nindent 4 }}
     app.kubernetes.io/component: quak
@@ -64,7 +65,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: {{ include "bosun.componentFullname" (dict "root" . "component" "quak") }}-executor
-  namespace: {{ .Values.quak.executorNamespace.name }}
+  namespace: {{ $executorNamespace }}
   labels:
     {{- include "bosun.labels" . | nindent 4 }}
     app.kubernetes.io/component: quak

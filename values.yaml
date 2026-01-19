@@ -249,7 +249,7 @@ quak:
   rbac:
     enabled: true
   executorNamespace:
-    name: tasks
+    name: ""
     create: false
   pdb:
     enabled: true

@@ -280,9 +280,62 @@ suite: quak executor namespace
 templates:
   - quak/rbac.yaml
 tests:
-  - it: renders executor namespace and rbac
+  - it: uses release namespace when executor namespace empty
+    release:
+      namespace: demo
     set:
       quak.executorNamespace.create: true
+      quak.executorNamespace.name: ""
+    asserts:
+      - hasDocuments:
+          count: 4
+      - equal:
+          path: kind
+          value: Namespace
+        documentIndex: 0
+      - equal:
+          path: metadata.name
+          value: demo
+        documentIndex: 0
+      - equal:
+          path: kind
+          value: ServiceAccount
+        documentIndex: 1
+      - equal:
+          path: metadata.namespace
+          value: demo
+        documentIndex: 1
+      - equal:
+          path: kind
+          value: Role
+        documentIndex: 2
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-bosun-quak-executor
+        documentIndex: 2
+      - equal:
+          path: metadata.namespace
+          value: demo
+        documentIndex: 2
+      - equal:
+          path: kind
+          value: RoleBinding
+        documentIndex: 3
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-bosun-quak-executor
+        documentIndex: 3
+      - equal:
+          path: metadata.namespace
+          value: demo
+        documentIndex: 3
+
+  - it: uses explicit executor namespace when provided
+    release:
+      namespace: demo
+    set:
+      quak.executorNamespace.create: true
+      quak.executorNamespace.name: tasks
     asserts:
       - hasDocuments:
           count: 4
@@ -299,12 +352,12 @@ tests:
           value: ServiceAccount
         documentIndex: 1
       - equal:
+          path: metadata.namespace
+          value: demo
+        documentIndex: 1
+      - equal:
           path: kind
           value: Role
-        documentIndex: 2
-      - equal:
-          path: metadata.name
-          value: RELEASE-NAME-bosun-quak-executor
         documentIndex: 2
       - equal:
           path: metadata.namespace
@@ -315,13 +368,43 @@ tests:
           value: RoleBinding
         documentIndex: 3
       - equal:
-          path: metadata.name
-          value: RELEASE-NAME-bosun-quak-executor
-        documentIndex: 3
-      - equal:
           path: metadata.namespace
           value: tasks
         documentIndex: 3
+
+  - it: skips namespace creation when create is false
+    release:
+      namespace: demo
+    set:
+      quak.executorNamespace.create: false
+      quak.executorNamespace.name: ""
+    asserts:
+      - hasDocuments:
+          count: 3
+      - equal:
+          path: kind
+          value: ServiceAccount
+        documentIndex: 0
+      - equal:
+          path: metadata.namespace
+          value: demo
+        documentIndex: 0
+      - equal:
+          path: kind
+          value: Role
+        documentIndex: 1
+      - equal:
+          path: metadata.namespace
+          value: demo
+        documentIndex: 1
+      - equal:
+          path: kind
+          value: RoleBinding
+        documentIndex: 2
+      - equal:
+          path: metadata.namespace
+          value: demo
+        documentIndex: 2
 
 ---
 suite: stern database url override

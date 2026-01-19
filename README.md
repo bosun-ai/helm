@@ -10,10 +10,9 @@ You must choose:
 - Secrets: provide `stern-secrets`, `quak-secrets`, and the SCM secret for the chosen mode.
 - External services: keep bundled Postgres/Redis/Qdrant (default) or point to your own.
 
-Then do:
+Then do (namespace must already exist):
 
 ```
-kubectl create namespace bosun
 kubectl -n bosun apply -f ./your-secrets.yaml
 ```
 
@@ -21,8 +20,7 @@ Install for GitHub mode (default):
 
 ```
 helm install bosun helm/ \
-  --namespace bosun \
-  --create-namespace
+  --namespace bosun
 ```
 
 Install for GitLab mode:
@@ -30,7 +28,6 @@ Install for GitLab mode:
 ```
 helm install bosun helm/ \
   --namespace bosun \
-  --create-namespace \
   --set scm.mode=gitlab \
   --set scm.gitlab.patSecretName=gitlab-secrets
 ```
@@ -46,7 +43,6 @@ kubectl -n bosun get pods
 For a local/demo install with bundled services and dummy secrets:
 
 ```
-kubectl create namespace bosun
 kubectl -n bosun apply -f helm/examples/quickstart-secrets.yaml
 helm install bosun helm/ --namespace bosun
 ```
