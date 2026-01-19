@@ -1,8 +1,23 @@
+## [0.1.2] - 2026-01-19
+
+### 🐛 Bug Fixes
+
+- *(ci)* Trim extra versions from pipeline
+
+### ⚙️ Miscellaneous Tasks
+
+- Test empty release
+- Test empty release
 ## [0.1.1] - 2026-01-19
 
 ### 🐛 Bug Fixes
 
 - *(ci)* Fix linter
+- *(ci)* Set user name and email for chart release
+
+### ⚙️ Miscellaneous Tasks
+
+- Release vv0.1.1 (#3)
 ## [0.1.0] - 2026-01-19
 
 ### 🚀 Features
