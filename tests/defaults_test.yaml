@@ -2,6 +2,8 @@ suite: bow deployment
 templates:
   - bow/deployment.yaml
   - bow/configmap.yaml
+chart:
+  appVersion: 9.9.9-test
 tests:
   - it: renders bow deployment
     template: bow/deployment.yaml
@@ -13,7 +15,7 @@ tests:
           value: RELEASE-NAME-bosun-bow
       - equal:
           path: spec.template.spec.containers[0].image
-          value: ghcr.io/bosun-ai/fluyt/bow:latest
+          value: ghcr.io/bosun-ai/fluyt/bow:9.9.9-test
 
 ---
 suite: stern deployment
