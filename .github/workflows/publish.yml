@@ -20,6 +20,41 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Read chart version
+        id: chart
+        run: |
+          version=$(awk '/^version:/ {print $2; exit}' Chart.yaml)
+          if [[ -z "$version" ]]; then
+            echo "Chart.yaml version not found" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare release notes
+        run: |
+          version="${{ steps.chart.outputs.version }}"
+          version_tag="v${version}"
+          notes_file="/tmp/release-notes.md"
+          {
+            echo "## Release ${version_tag}"
+            echo
+            awk -v v="${version}" -v vt="${version_tag}" '
+              function matches_version(line, v, vt, hv) {
+                hv = line
+                sub(/^##[[:space:]]*/, "", hv)
+                sub(/[[:space:]]*-.*/, "", hv)
+                gsub(/^[[]/, "", hv)
+                gsub(/[]]$/, "", hv)
+                return (hv == v || hv == vt)
+              }
+              /^## / {
+                if (matches_version($0, v, vt)) { inside=1; print; next }
+                if (inside) { exit }
+              }
+              inside { print }
+            ' CHANGELOG.md
+          } > "${notes_file}"
+
       - name: Publish chart to GitHub Pages
         uses: helm/chart-releaser-action@v1.6.0
         with:
@@ -28,3 +63,9 @@ jobs:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CR_SKIP_EXISTING: "true"
           CR_RELEASE_NAME_TEMPLATE: "v{{ .Version }}"
+
+      - name: Update GitHub release notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release edit "v${{ steps.chart.outputs.version }}" --notes-file /tmp/release-notes.md
