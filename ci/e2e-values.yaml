@@ -21,3 +21,4 @@ quak:
   replicas: 1
   executorNamespace:
     create: true
+    name: tasks

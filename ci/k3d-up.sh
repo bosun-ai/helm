@@ -20,10 +20,10 @@ else
   --servers 1
 fi
 
-if [ -f "helm/ci/kubeconfig" ]; then
-  rm -f helm/ci/kubeconfig
+if [ -f "ci/kubeconfig" ]; then
+  rm -f ci/kubeconfig
 fi
 
-k3d kubeconfig get "${CLUSTER_NAME}" > helm/ci/kubeconfig
-echo "Wrote kubeconfig to helm/ci/kubeconfig"
-KUBECONFIG=helm/ci/kubeconfig kubectl cluster-info
+k3d kubeconfig get "${CLUSTER_NAME}" > ci/kubeconfig
+echo "Wrote kubeconfig to ci/kubeconfig"
+KUBECONFIG=ci/kubeconfig kubectl cluster-info

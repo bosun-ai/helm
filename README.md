@@ -230,9 +230,9 @@ The billing worker still deploys by default; override via `stern.billingWorker.e
 ## Testing
 
 ```
-helm lint helm/
-helm template helm/
-helm unittest helm/
+helm lint helm/charts/bosun
+helm template helm/charts/bosun
+helm unittest helm/charts/bosun
 ```
 
 `helm unittest` requires the helm-unittest plugin:

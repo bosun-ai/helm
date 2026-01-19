@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - Chart.yaml
+      - charts/bosun/Chart.yaml
       - CHANGELOG.md
 
 permissions:
@@ -23,7 +23,7 @@ jobs:
       - name: Read chart version
         id: chart
         run: |
-          version=$(awk '/^version:/ {print $2; exit}' Chart.yaml)
+          version=$(awk '/^version:/ {print $2; exit}' charts/bosun/Chart.yaml)
           if [[ -z "$version" ]]; then
             echo "Chart.yaml version not found" >&2
             exit 1
@@ -58,7 +58,7 @@ jobs:
       - name: Publish chart to GitHub Pages
         uses: helm/chart-releaser-action@v1.6.0
         with:
-          charts_dir: .
+          charts_dir: charts
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CR_SKIP_EXISTING: "true"

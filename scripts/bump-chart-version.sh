@@ -2,7 +2,8 @@
 set -euo pipefail
 
 config="cliff.toml"
-chart_file="Chart.yaml"
+chart_dir="${CHART_DIR:-charts/bosun}"
+chart_file="${chart_dir}/Chart.yaml"
 
 if ! command -v git-cliff >/dev/null 2>&1; then
 	echo "git-cliff is required but not installed" >&2

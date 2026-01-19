@@ -1,9 +1,9 @@
 set shell := ["zsh", "-lc"]
 
 @test:
-  helm lint .
-  helm template .
-  helm unittest .
+  helm lint charts/bosun
+  helm template charts/bosun
+  helm unittest charts/bosun
 
 @e2e:
   ci/e2e-run.sh

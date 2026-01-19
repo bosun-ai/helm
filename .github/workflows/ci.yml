@@ -21,10 +21,10 @@ jobs:
           helm plugin install --verify false https://github.com/helm-unittest/helm-unittest
 
       - name: Helm lint
-        run: helm lint .
+        run: helm lint charts/bosun
 
       - name: Helm template
-        run: helm template . > /tmp/rendered.yaml
+        run: helm template charts/bosun > /tmp/rendered.yaml
 
       - name: Helm unit tests
-        run: helm unittest .
+        run: helm unittest charts/bosun

@@ -4,8 +4,8 @@ set -euo pipefail
 NAMESPACE=${BOSUN_NAMESPACE:-bosun}
 RELEASE_NAME=${BOSUN_RELEASE_NAME:-bosun}
 
-if [ -z "${KUBECONFIG:-}" ] && [ -f "helm/ci/kubeconfig" ]; then
-  export KUBECONFIG="helm/ci/kubeconfig"
+if [ -z "${KUBECONFIG:-}" ] && [ -f "ci/kubeconfig" ]; then
+  export KUBECONFIG="ci/kubeconfig"
 fi
 
 stern_service=$(kubectl -n "$NAMESPACE" get svc \
