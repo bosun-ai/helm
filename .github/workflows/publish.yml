@@ -71,4 +71,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release edit "v${{ steps.chart.outputs.version }}" --notes-file /tmp/release-notes.md
+          gh release edit "bosun-${{ steps.chart.outputs.version }}" --notes-file /tmp/release-notes.md
