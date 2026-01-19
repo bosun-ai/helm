@@ -33,7 +33,7 @@ jobs:
 
       - name: Generate changelog
         run: |
-          git cliff --config cliff.toml --tag "v${{ steps.bump.outputs.chart_version }}" -o CHANGELOG.md
+          git cliff --config cliff.toml --tag "${{ steps.bump.outputs.chart_version }}" -o CHANGELOG.md
 
       - name: Check for changes
         id: changes
@@ -79,7 +79,7 @@ jobs:
         if: steps.changes.outputs.has_changes == 'true'
         with:
           commit-message: "chore: release chart"
-          title: "chore: release v${{ steps.bump.outputs.chart_version }}"
+          title: "chore: release ${{ steps.bump.outputs.chart_version }}"
           body-path: "/tmp/release-pr-body.md"
           branch: "chore/release"
           delete-branch: true

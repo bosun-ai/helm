@@ -66,7 +66,6 @@ jobs:
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CR_SKIP_EXISTING: "true"
-          CR_RELEASE_NAME_TEMPLATE: "v{{ .Version }}"
 
       - name: Update GitHub release notes
         env:
