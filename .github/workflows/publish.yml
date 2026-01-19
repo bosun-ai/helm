@@ -54,6 +54,10 @@ jobs:
               inside { print }
             ' CHANGELOG.md
           } > "${notes_file}"
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: Publish chart to GitHub Pages
         uses: helm/chart-releaser-action@v1.6.0
