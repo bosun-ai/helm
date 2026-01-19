@@ -39,12 +39,9 @@ spec:
       nodeSelector:
         {{- toYaml .Values.global.nodeSelector | nindent 8 }}
 {{- end }}
-{{- if .Values.postgres.tolerations }}
-      tolerations:
-        {{- toYaml .Values.postgres.tolerations | nindent 8 }}
-{{- else if .Values.global.tolerations }}
-      tolerations:
-        {{- toYaml .Values.global.tolerations | nindent 8 }}
+{{- $tolerations := include "bosun.tolerations" (dict "component" .Values.postgres.tolerations "global" .Values.global.tolerations) -}}
+{{- if $tolerations }}
+{{- $tolerations | nindent 6 }}
 {{- end }}
 {{- if .Values.postgres.affinity }}
       affinity:

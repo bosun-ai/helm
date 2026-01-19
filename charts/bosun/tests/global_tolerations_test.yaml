@@ -1,0 +1,269 @@
+suite: global tolerations
+templates:
+  - bow/configmap.yaml
+  - bow/deployment.yaml
+  - stern/configmap.yaml
+  - stern/deployment.yaml
+  - stern/billing-worker.yaml
+  - quak/configmap.yaml
+  - quak/deployment.yaml
+  - postgres/deployment.yaml
+  - redis/shared.yaml
+  - redis/indexing.yaml
+  - qdrant/deployment.yaml
+  - prepull-daemonset.yaml
+  - overprovisioner.yaml
+  - stern/migrate-job.yaml
+  - envelope-encryption-job.yaml
+tests:
+  - it: adds global toleration to bow
+    template: bow/deployment.yaml
+    set:
+      global:
+        tolerations:
+          - key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+
+  - it: merges global and bow tolerations
+    template: bow/deployment.yaml
+    set:
+      global:
+        tolerations:
+          - key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+      bow:
+        tolerations:
+          - key: bow-only
+            operator: Exists
+            effect: NoExecute
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: bow-only
+            operator: Exists
+            effect: NoExecute
+
+  - it: adds global toleration to stern deployment
+    template: stern/deployment.yaml
+    set:
+      global:
+        tolerations:
+          - key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+
+  - it: adds global toleration to stern billing worker
+    template: stern/billing-worker.yaml
+    set:
+      global:
+        tolerations:
+          - key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+
+  - it: adds global toleration to quak deployment
+    template: quak/deployment.yaml
+    set:
+      global:
+        tolerations:
+          - key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+
+  - it: adds global toleration to postgres deployment
+    template: postgres/deployment.yaml
+    set:
+      global:
+        tolerations:
+          - key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+
+  - it: adds global toleration to redis shared deployment
+    template: redis/shared.yaml
+    set:
+      global:
+        tolerations:
+          - key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+        documentIndex: 0
+
+  - it: adds global toleration to redis indexing deployment
+    template: redis/indexing.yaml
+    set:
+      global:
+        tolerations:
+          - key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+        documentIndex: 0
+
+  - it: adds global toleration to qdrant deployment
+    template: qdrant/deployment.yaml
+    set:
+      global:
+        tolerations:
+          - key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+
+  - it: adds global toleration to prepull daemonset
+    template: prepull-daemonset.yaml
+    set:
+      prepull:
+        enabled: true
+      global:
+        tolerations:
+          - key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+
+  - it: adds global toleration to overprovisioner deployment
+    template: overprovisioner.yaml
+    set:
+      overprovisioner:
+        enabled: true
+      global:
+        tolerations:
+          - key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+        documentIndex: 1
+
+  - it: adds global toleration to stern migrate job
+    template: stern/migrate-job.yaml
+    set:
+      global:
+        tolerations:
+          - key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+
+  - it: adds global toleration to envelope encryption job
+    template: envelope-encryption-job.yaml
+    set:
+      global:
+        tolerations:
+          - key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule

@@ -52,3 +52,13 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- include "bosun.componentFullname" (dict "root" . "component" "quak") -}}
 {{- end -}}
 {{- end -}}
+
+{{- define "bosun.tolerations" -}}
+{{- $component := default (list) .component -}}
+{{- $global := default (list) .global -}}
+{{- $merged := concat $component $global -}}
+{{- if $merged }}
+tolerations:
+{{- toYaml $merged | nindent 2 }}
+{{- end -}}
+{{- end -}}

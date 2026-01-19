@@ -45,8 +45,8 @@ spec:
       containers:
         - name: hold
           image: registry.k8s.io/pause:3.9
-{{- with .Values.prepull.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
+{{- $tolerations := include "bosun.tolerations" (dict "component" .Values.prepull.tolerations "global" .Values.global.tolerations) -}}
+{{- if $tolerations }}
+{{- $tolerations | nindent 6 }}
 {{- end }}
 {{- end }}

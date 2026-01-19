@@ -36,9 +36,9 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
 {{- end }}
-{{- with .Values.overprovisioner.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
+{{- $tolerations := include "bosun.tolerations" (dict "component" .Values.overprovisioner.tolerations "global" .Values.global.tolerations) -}}
+{{- if $tolerations }}
+{{- $tolerations | nindent 6 }}
 {{- end }}
       terminationGracePeriodSeconds: 0
       containers:

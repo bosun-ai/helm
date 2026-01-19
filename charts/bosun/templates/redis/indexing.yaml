@@ -50,6 +50,10 @@ spec:
         {{- include "bosun.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: redis-indexing
     spec:
+{{- $tolerations := include "bosun.tolerations" (dict "global" .Values.global.tolerations) -}}
+{{- if $tolerations }}
+{{- $tolerations | nindent 6 }}
+{{- end }}
       containers:
         - name: redis
           image: "{{ .Values.redis.indexing.image.repository }}:{{ .Values.redis.indexing.image.tag }}"

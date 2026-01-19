@@ -26,6 +26,10 @@ spec:
         - name: {{ . }}
 {{- end }}
 {{- end }}
+{{- $tolerations := include "bosun.tolerations" (dict "global" .Values.global.tolerations) -}}
+{{- if $tolerations }}
+{{- $tolerations | nindent 6 }}
+{{- end }}
       volumes:
         - name: work
           emptyDir: {}
