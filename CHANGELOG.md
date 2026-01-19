@@ -10,6 +10,7 @@
 ### 🐛 Bug Fixes
 
 - Autogen secrets
+- Set current to 0.0.1 and exit early if update failed
 
 ### 📚 Documentation
 
@@ -19,3 +20,5 @@
 
 - Initial commit
 - Focus on zero config
+- Release chart
+- Fix chart version
