@@ -60,7 +60,7 @@ spec:
       affinity:
         {{- toYaml .Values.global.affinity | nindent 8 }}
 {{- end }}
-      {{- $imageTag := default .Values.global.image.tag .Values.bow.image.tag }}
+      {{- $imageTag := coalesce .Values.bow.image.tag .Values.global.image.tag .Chart.AppVersion }}
       containers:
         - name: bow
           image: "{{ .Values.bow.image.repository }}:{{ $imageTag }}"

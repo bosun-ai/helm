@@ -1,7 +1,7 @@
 global:
   namespace: ""
   image:
-    tag: latest
+    tag: ""
   imagePullSecrets: []
   labels: {}
   annotations: {}

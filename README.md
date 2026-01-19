@@ -192,7 +192,8 @@ qdrant:
 ## Images and versions
 
 All Bosun components (Bow, Stern, Quak) must use the same version tag.
-Set a single tag via:
+By default, the chart uses the chart `appVersion` for these images.
+To override, set a single tag via:
 
 ```
 global:

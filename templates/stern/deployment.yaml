@@ -60,7 +60,7 @@ spec:
       affinity:
         {{- toYaml .Values.global.affinity | nindent 8 }}
 {{- end }}
-      {{- $imageTag := default .Values.global.image.tag .Values.stern.image.tag }}
+      {{- $imageTag := coalesce .Values.stern.image.tag .Values.global.image.tag .Chart.AppVersion }}
       containers:
         - name: stern
           image: "{{ .Values.stern.image.repository }}:{{ $imageTag }}"

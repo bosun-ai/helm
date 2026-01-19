@@ -41,7 +41,7 @@ spec:
         - name: {{ . }}
 {{- end }}
 {{- end }}
-      {{- $imageTag := default .Values.global.image.tag .Values.stern.image.tag }}
+      {{- $imageTag := coalesce .Values.stern.image.tag .Values.global.image.tag .Chart.AppVersion }}
       containers:
         - name: stern-migrate
           image: "{{ .Values.stern.image.repository }}:{{ $imageTag }}"
