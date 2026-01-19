@@ -16,17 +16,24 @@ Then do (namespace must already exist):
 kubectl -n bosun apply -f ./your-secrets.yaml
 ```
 
+Add the Helm repo:
+
+```
+helm repo add bosun https://bosun-ai.github.io/helm
+helm repo update
+```
+
 Install for GitHub mode (default):
 
 ```
-helm install bosun helm/ \
+helm install bosun bosun/bosun \
   --namespace bosun
 ```
 
 Install for GitLab mode:
 
 ```
-helm install bosun helm/ \
+helm install bosun bosun/bosun \
   --namespace bosun \
   --set scm.mode=gitlab \
   --set scm.gitlab.patSecretName=gitlab-secrets
@@ -44,7 +51,7 @@ For a local/demo install with bundled services and dummy secrets:
 
 ```
 kubectl -n bosun apply -f helm/examples/quickstart-secrets.yaml
-helm install bosun helm/ --namespace bosun
+helm install bosun bosun/bosun --namespace bosun
 ```
 
 Replace the dummy values before production use.
