@@ -267,3 +267,17 @@ tests:
             operator: Equal
             value: "true"
             effect: NoSchedule
+
+  - it: sets executor tolerations env for quak
+    template: quak/configmap.yaml
+    set:
+      global:
+        tolerations:
+          - key: dedicated
+            operator: Equal
+            value: "true"
+            effect: NoSchedule
+    asserts:
+      - equal:
+          path: data.K8S_EXECUTOR_TOLERATIONS
+          value: "[{\"effect\":\"NoSchedule\",\"key\":\"dedicated\",\"operator\":\"Equal\",\"value\":\"true\"}]"

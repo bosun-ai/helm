@@ -23,6 +23,10 @@ data:
 {{- $_ := set $env "REDIS_URL" (default (printf "redis://%s:%d" $redisShared (int .Values.redis.shared.service.port)) (get $userEnv "REDIS_URL")) }}
 {{- $_ := set $env "REDIS_INDEXING_URL" (default (printf "redis://%s:%d" $redisIndexing (int .Values.redis.indexing.service.port)) (get $userEnv "REDIS_INDEXING_URL")) }}
 {{- $_ := set $env "QDRANT_URL" (default (printf "http://%s:%d" $qdrantService (int .Values.qdrant.service.grpcPort)) (get $userEnv "QDRANT_URL")) }}
+{{- $executorTolerations := get $userEnv "K8S_EXECUTOR_TOLERATIONS" }}
+{{- if or $executorTolerations .Values.global.tolerations }}
+{{- $_ := set $env "K8S_EXECUTOR_TOLERATIONS" (default (toJson .Values.global.tolerations) $executorTolerations) }}
+{{- end }}
 {{- if eq .Values.scm.mode "gitlab" }}
 {{- $_ := set $env "GITLAB_API_ENDPOINT" (default .Values.scm.gitlab.apiEndpoint (get $userEnv "GITLAB_API_ENDPOINT")) }}
 {{- end }}
