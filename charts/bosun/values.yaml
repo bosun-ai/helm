@@ -25,6 +25,10 @@ scm:
     patSecretKey: GITLAB_PAT
     apiEndpoint: https://gitlab.com/api/v4
 
+internalApiToken:
+  create: true
+  secretName: fluyt-internal-api-secrets
+
 bow:
   enabled: true
   replicas: 2
@@ -99,6 +103,7 @@ stern:
       - stern-secrets
       - github-secrets
       - fluyt-envelope-encr-secrets
+      - fluyt-internal-api-secrets
   database:
     url: ""
     existingSecret: ""
@@ -241,6 +246,7 @@ quak:
       - quak-secrets
       - github-secrets
       - fluyt-envelope-encr-secrets
+      - fluyt-internal-api-secrets
   service:
     type: ClusterIP
     port: 3001

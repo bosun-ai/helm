@@ -53,6 +53,14 @@
         }
       }
     },
+    "internalApiToken": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "create": { "type": "boolean" },
+        "secretName": { "type": "string" }
+      }
+    },
     "bow": {
       "type": "object",
       "additionalProperties": false,

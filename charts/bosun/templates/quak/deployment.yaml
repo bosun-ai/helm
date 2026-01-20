@@ -78,7 +78,9 @@ spec:
             - configMapRef:
                 name: {{ include "bosun.componentFullname" (dict "root" . "component" "quak") }}-env
 {{- $githubSecret := .Values.scm.github.secretName }}
-{{- range .Values.quak.secrets.existing }}
+{{- $internalSecret := .Values.internalApiToken.secretName | default "" }}
+{{- $existingSecrets := .Values.quak.secrets.existing | default (list) }}
+{{- range $existingSecrets }}
 {{- if and (eq $.Values.scm.mode "gitlab") (eq . $githubSecret) }}
 {{- else }}
             - secretRef:
@@ -88,6 +90,10 @@ spec:
 {{- if eq .Values.scm.mode "gitlab" }}
             - secretRef:
                 name: {{ .Values.scm.gitlab.patSecretName }}
+{{- end }}
+{{- if and $internalSecret (not (has $internalSecret $existingSecrets)) }}
+            - secretRef:
+                name: {{ $internalSecret }}
 {{- end }}
           ports:
             - name: http

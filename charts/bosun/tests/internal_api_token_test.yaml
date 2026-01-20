@@ -1,0 +1,32 @@
+suite: internal api token
+templates:
+  - internal-api-token-secret.yaml
+  - quak/deployment.yaml
+  - quak/configmap.yaml
+  - stern/deployment.yaml
+  - stern/configmap.yaml
+tests:
+  - it: renders internal api token secret
+    template: internal-api-token-secret.yaml
+    asserts:
+      - isKind:
+          of: Secret
+      - equal:
+          path: metadata.name
+          value: fluyt-internal-api-secrets
+  - it: injects internal api token into quak envFrom
+    template: quak/deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: fluyt-internal-api-secrets
+  - it: injects internal api token into stern envFrom
+    template: stern/deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: fluyt-internal-api-secrets
