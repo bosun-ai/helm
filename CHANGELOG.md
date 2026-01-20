@@ -1,4 +1,19 @@
-## [0.1.2] - 2026-01-19
+## [bosun-v0.2.0] - 2026-01-20
+
+### 🚀 Features
+
+- Global tolerations
+- Global tolerations also apply to k88s executor
+- Auto-generate internal api token
+
+### 🐛 Bug Fixes
+
+- *(ci)* Edit correct chart release with change notes
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump appVersion to 0.73.0
+## [bosun-v0.1.2] - 2026-01-19
 
 ### 🐛 Bug Fixes
 
@@ -8,6 +23,7 @@
 
 - Test empty release
 - Test empty release
+- Release v0.1.2 (#4)
 ## [0.1.1] - 2026-01-19
 
 ### 🐛 Bug Fixes

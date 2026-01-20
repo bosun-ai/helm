@@ -2,5 +2,5 @@ apiVersion: v2
 name: bosun
 description: Enterprise on-prem Helm chart for Bosun (Fluyt)
 type: application
-version: v0.1.2
+version: bosun-v0.2.0
 appVersion: "0.73.0"
