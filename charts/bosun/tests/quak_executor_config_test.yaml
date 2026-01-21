@@ -1,0 +1,36 @@
+suite: quak executor config
+templates:
+  - quak/configmap.yaml
+tests:
+  - it: sets executor storage, size, and resources env from values
+    asserts:
+      - equal:
+          path: data.K8S_EXECUTOR_PERSISTENCE_ENABLED
+          value: "true"
+      - equal:
+          path: data.K8S_EXECUTOR_STORAGE_CLASS_NAME
+          value: bosun-executor-encrypted
+      - equal:
+          path: data.K8S_EXECUTOR_VOLUME_SIZE_GIB
+          value: "40"
+      - equal:
+          path: data.K8S_EXECUTOR_CPU_MILLIS
+          value: "2000"
+      - equal:
+          path: data.K8S_EXECUTOR_MEMORY_MB
+          value: "4096"
+
+  - it: skips executor persistence env when disabled
+    set:
+      quak:
+        executor:
+          persistence:
+            enabled: false
+    asserts:
+      - equal:
+          path: data.K8S_EXECUTOR_PERSISTENCE_ENABLED
+          value: "false"
+      - notExists:
+          path: data.K8S_EXECUTOR_STORAGE_CLASS_NAME
+      - notExists:
+          path: data.K8S_EXECUTOR_VOLUME_SIZE_GIB

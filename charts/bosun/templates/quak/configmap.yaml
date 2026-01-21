@@ -17,6 +17,12 @@ data:
 {{- range $key, $value := $userEnv }}
 {{- $_ := set $env $key $value }}
 {{- end }}
+{{- $executor := .Values.quak.executor | default dict }}
+{{- $executorPersistence := get $executor "persistence" | default dict }}
+{{- $executorPersistenceEnabled := ternary (get $executorPersistence "enabled") true (hasKey $executorPersistence "enabled") }}
+{{- $executorResources := get $executor "resources" | default dict }}
+{{- $executorResourceLimits := get $executorResources "limits" | default dict }}
+{{- $executorResourceRequests := get $executorResources "requests" | default dict }}
 {{- $redisShared := include "bosun.componentFullname" (dict "root" . "component" "redis-shared") }}
 {{- $redisIndexing := include "bosun.componentFullname" (dict "root" . "component" "redis-indexing") }}
 {{- $qdrantService := include "bosun.componentFullname" (dict "root" . "component" "qdrant") }}
@@ -26,6 +32,46 @@ data:
 {{- $executorTolerations := get $userEnv "K8S_EXECUTOR_TOLERATIONS" }}
 {{- if or $executorTolerations .Values.global.tolerations }}
 {{- $_ := set $env "K8S_EXECUTOR_TOLERATIONS" (default (toJson .Values.global.tolerations) $executorTolerations) }}
+{{- end }}
+{{- if not (get $userEnv "K8S_EXECUTOR_PERSISTENCE_ENABLED") }}
+{{- $_ := set $env "K8S_EXECUTOR_PERSISTENCE_ENABLED" (ternary "true" "false" $executorPersistenceEnabled) }}
+{{- end }}
+{{- if $executorPersistenceEnabled }}
+{{- $executorStorageClass := get $executorPersistence "storageClass" }}
+{{- if and $executorStorageClass (not (get $userEnv "K8S_EXECUTOR_STORAGE_CLASS_NAME")) }}
+{{- $_ := set $env "K8S_EXECUTOR_STORAGE_CLASS_NAME" $executorStorageClass }}
+{{- end }}
+{{- $executorVolumeSize := get $executorPersistence "size" }}
+{{- if and $executorVolumeSize (not (get $userEnv "K8S_EXECUTOR_VOLUME_SIZE_GIB")) }}
+{{- $volumeSizeRaw := printf "%v" $executorVolumeSize }}
+{{- $volumeSizeGi := $volumeSizeRaw }}
+{{- if hasSuffix "Gi" $volumeSizeRaw }}
+{{- $volumeSizeGi = trimSuffix "Gi" $volumeSizeRaw }}
+{{- end }}
+{{- $_ := set $env "K8S_EXECUTOR_VOLUME_SIZE_GIB" (printf "%v" $volumeSizeGi) }}
+{{- end }}
+{{- end }}
+{{- $executorCpu := coalesce (get $executorResourceLimits "cpu") (get $executorResourceRequests "cpu") }}
+{{- if and $executorCpu (not (get $userEnv "K8S_EXECUTOR_CPU_MILLIS")) }}
+{{- $executorCpuRaw := printf "%v" $executorCpu }}
+{{- $cpuMillis := $executorCpuRaw }}
+{{- if hasSuffix "m" $executorCpuRaw }}
+{{- $cpuMillis = trimSuffix "m" $executorCpuRaw }}
+{{- else }}
+{{- $cpuMillis = mul (int $executorCpuRaw) 1000 | int }}
+{{- end }}
+{{- $_ := set $env "K8S_EXECUTOR_CPU_MILLIS" (printf "%v" $cpuMillis) }}
+{{- end }}
+{{- $executorMemory := coalesce (get $executorResourceLimits "memory") (get $executorResourceRequests "memory") }}
+{{- if and $executorMemory (not (get $userEnv "K8S_EXECUTOR_MEMORY_MB")) }}
+{{- $executorMemoryRaw := printf "%v" $executorMemory }}
+{{- $memoryMi := $executorMemoryRaw }}
+{{- if hasSuffix "Mi" $executorMemoryRaw }}
+{{- $memoryMi = trimSuffix "Mi" $executorMemoryRaw }}
+{{- else if hasSuffix "Gi" $executorMemoryRaw }}
+{{- $memoryMi = mul (int (trimSuffix "Gi" $executorMemoryRaw)) 1024 | int }}
+{{- end }}
+{{- $_ := set $env "K8S_EXECUTOR_MEMORY_MB" (printf "%v" $memoryMi) }}
 {{- end }}
 {{- if eq .Values.scm.mode "gitlab" }}
 {{- $_ := set $env "GITLAB_API_ENDPOINT" (default .Values.scm.gitlab.apiEndpoint (get $userEnv "GITLAB_API_ENDPOINT")) }}

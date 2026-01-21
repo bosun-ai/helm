@@ -238,8 +238,6 @@ quak:
     RUST_LOG: quak=debug,kwaak=debug,swiftide=debug,warn
     OTEL_ENABLED: "false"
     KUBERNETES_ENABLED: "true"
-    K8S_EXECUTOR_STORAGE_CLASS_NAME: bosun-executor-encrypted
-    K8S_EXECUTOR_VOLUME_SIZE_GIB: "40"
     EXECUTOR_TAG: latest
   secrets:
     existing:
@@ -257,6 +255,18 @@ quak:
   executorNamespace:
     name: ""
     create: false
+  executor:
+    persistence:
+      enabled: true
+      storageClass: bosun-executor-encrypted
+      size: 40Gi
+    resources:
+      requests:
+        cpu: "2000m"
+        memory: "4096Mi"
+      limits:
+        cpu: "2000m"
+        memory: "4096Mi"
   pdb:
     enabled: true
     minAvailable: 1

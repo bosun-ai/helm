@@ -281,6 +281,22 @@
             "create": { "type": "boolean" }
           }
         },
+        "executor": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "persistence": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "enabled": { "type": "boolean" },
+                "storageClass": { "type": "string" },
+                "size": { "type": "string" }
+              }
+            },
+            "resources": { "type": "object" }
+          }
+        },
         "pdb": {
           "type": "object",
           "additionalProperties": false,
