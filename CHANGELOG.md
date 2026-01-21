@@ -1,3 +1,17 @@
+## [0.3.0] - 2026-01-21
+
+### 🚀 Features
+
+- Opt-out storage and configurable resources for executor
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump Bosun app version
+## [bosun-0.2.0] - 2026-01-21
+
+### 🐛 Bug Fixes
+
+- Strip bosun- prefix from cliff version
 ## [bosun-v0.2.0] - 2026-01-20
 
 ### 🚀 Features
@@ -9,10 +23,12 @@
 ### 🐛 Bug Fixes
 
 - *(ci)* Edit correct chart release with change notes
+- Manually set chart version
 
 ### ⚙️ Miscellaneous Tasks
 
 - Bump appVersion to 0.73.0
+- Release bosun-v0.2.0 (#5)
 ## [bosun-v0.1.2] - 2026-01-19
 
 ### 🐛 Bug Fixes
