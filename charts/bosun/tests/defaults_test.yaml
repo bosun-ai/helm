@@ -218,6 +218,12 @@ tests:
       - equal:
           path: metadata.name
           value: RELEASE-NAME-bosun-stern
+      - equal:
+          path: spec.rules[1].host
+          value: app.example.com
+      - equal:
+          path: spec.rules[1].http.paths[1].path
+          value: /cable
 
 ---
 suite: prepull enabled
@@ -605,12 +611,6 @@ templates:
   - stern/configmap.yaml
   - quak/configmap.yaml
 tests:
-  - it: defaults bow backend url to stern service
-    template: bow/configmap.yaml
-    asserts:
-      - equal:
-          path: data.BACKEND_URL
-          value: http://RELEASE-NAME-bosun-stern:3000
   - it: defaults stern service urls
     template: stern/configmap.yaml
     asserts:

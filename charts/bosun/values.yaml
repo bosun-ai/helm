@@ -41,7 +41,6 @@ bow:
   containerPort: 80
   terminationGracePeriodSeconds: 30
   env:
-    BACKEND_URL: ""
     BUN_ENV: production
     NODE_ENV: production
   service:
@@ -131,6 +130,8 @@ stern:
       - host: app.example.com
         paths:
           - path: /api
+            pathType: Prefix
+          - path: /cable
             pathType: Prefix
     tls: []
   pdb:

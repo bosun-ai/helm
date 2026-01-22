@@ -17,8 +17,6 @@ data:
 {{- range $key, $value := $userEnv }}
 {{- $_ := set $env $key $value }}
 {{- end }}
-{{- $sternService := include "bosun.componentFullname" (dict "root" . "component" "stern") }}
-{{- $_ := set $env "BACKEND_URL" (default (printf "http://%s:%d" $sternService (int .Values.stern.service.port)) (get $userEnv "BACKEND_URL")) }}
 {{- if eq .Values.scm.mode "gitlab" }}
 {{- $_ := set $env "AUTHENTICATION_DISABLED" (default "true" (get $userEnv "AUTHENTICATION_DISABLED")) }}
 {{- end }}
