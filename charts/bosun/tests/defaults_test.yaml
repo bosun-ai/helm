@@ -447,6 +447,14 @@ tests:
       - equal:
           path: data.EXTRA_SETTING
           value: enabled
+  - it: sets stern allowed hosts env when configured
+    template: stern/configmap.yaml
+    values:
+      - values/stern-allowed-hosts.yaml
+    asserts:
+      - equal:
+          path: data.STERN_ALLOWED_HOSTS
+          value: api.example.com,app.example.com
   - it: renders quak env overrides
     template: quak/configmap.yaml
     set:

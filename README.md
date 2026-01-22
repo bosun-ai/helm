@@ -227,6 +227,20 @@ stern:
 
 The billing worker still deploys by default; override via `stern.billingWorker.enabled`.
 
+## Stern host authorization (Rails)
+
+Rails host authorization defaults to `stern` and `*.bosun.ai`. To allow other
+hosts, provide a comma-separated list via Helm:
+
+```
+stern:
+  hostAuthorization:
+    allowedHosts:
+      - api.bosun.example.com
+      - app.bosun.example.com
+      - stern
+```
+
 ## Testing
 
 ```

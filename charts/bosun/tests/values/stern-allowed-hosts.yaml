@@ -1,0 +1,5 @@
+stern:
+  hostAuthorization:
+    allowedHosts:
+      - api.example.com
+      - app.example.com

@@ -97,6 +97,8 @@ stern:
     QUAK_URL: ""
     ROOT_URL: ""
     BILLING_DISABLED: "true"
+  hostAuthorization:
+    allowedHosts: []
   secrets:
     existing:
       - stern-secrets
