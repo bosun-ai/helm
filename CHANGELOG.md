@@ -1,4 +1,14 @@
-## [0.3.0] - 2026-01-21
+## [0.4.0] - 2026-01-22
+
+### 🚀 Features
+
+- Configurable STERN_BASE_URL with sane default
+- Default to subpath for backend ingress
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump appVersion
+## [bosun-0.3.0] - 2026-01-21
 
 ### 🚀 Features
 
@@ -7,6 +17,7 @@
 ### ⚙️ Miscellaneous Tasks
 
 - Bump Bosun app version
+- Release 0.3.0 (#6)
 ## [bosun-0.2.0] - 2026-01-21
 
 ### 🐛 Bug Fixes
