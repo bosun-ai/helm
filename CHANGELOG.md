@@ -1,4 +1,13 @@
-## [0.4.0] - 2026-01-22
+## [0.5.0] - 2026-01-22
+
+### 🚀 Features
+
+- Configure stern allowed hosts
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump appVersion to 0.76
+## [bosun-0.4.0] - 2026-01-22
 
 ### 🚀 Features
 
@@ -8,6 +17,7 @@
 ### ⚙️ Miscellaneous Tasks
 
 - Bump appVersion
+- Release 0.4.0 (#7)
 ## [bosun-0.3.0] - 2026-01-21
 
 ### 🚀 Features
