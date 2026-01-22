@@ -3,4 +3,4 @@ name: bosun
 description: Enterprise on-prem Helm chart for Bosun (Fluyt)
 type: application
 version: 0.3.0
-appVersion: "0.74.0"
+appVersion: "0.75.0"
