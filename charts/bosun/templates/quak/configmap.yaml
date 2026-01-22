@@ -26,9 +26,11 @@ data:
 {{- $redisShared := include "bosun.componentFullname" (dict "root" . "component" "redis-shared") }}
 {{- $redisIndexing := include "bosun.componentFullname" (dict "root" . "component" "redis-indexing") }}
 {{- $qdrantService := include "bosun.componentFullname" (dict "root" . "component" "qdrant") }}
+{{- $sternService := include "bosun.componentFullname" (dict "root" . "component" "stern") }}
 {{- $_ := set $env "REDIS_URL" (default (printf "redis://%s:%d" $redisShared (int .Values.redis.shared.service.port)) (get $userEnv "REDIS_URL")) }}
 {{- $_ := set $env "REDIS_INDEXING_URL" (default (printf "redis://%s:%d" $redisIndexing (int .Values.redis.indexing.service.port)) (get $userEnv "REDIS_INDEXING_URL")) }}
 {{- $_ := set $env "QDRANT_URL" (default (printf "http://%s:%d" $qdrantService (int .Values.qdrant.service.grpcPort)) (get $userEnv "QDRANT_URL")) }}
+{{- $_ := set $env "STERN_BASE_URL" (default (printf "http://%s:%d" $sternService (int .Values.stern.service.port)) (get $userEnv "STERN_BASE_URL")) }}
 {{- $executorTolerations := get $userEnv "K8S_EXECUTOR_TOLERATIONS" }}
 {{- if or $executorTolerations .Values.global.tolerations }}
 {{- $_ := set $env "K8S_EXECUTOR_TOLERATIONS" (default (toJson .Values.global.tolerations) $executorTolerations) }}

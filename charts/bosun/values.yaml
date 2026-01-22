@@ -235,6 +235,7 @@ quak:
     QDRANT_URL: ""
     REDIS_URL: ""
     REDIS_INDEXING_URL: ""
+    STERN_BASE_URL: ""
     RUST_LOG: quak=debug,kwaak=debug,swiftide=debug,warn
     OTEL_ENABLED: "false"
     KUBERNETES_ENABLED: "true"

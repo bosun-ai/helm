@@ -635,6 +635,9 @@ tests:
       - equal:
           path: data.QDRANT_URL
           value: http://RELEASE-NAME-bosun-qdrant:6334
+      - equal:
+          path: data.STERN_BASE_URL
+          value: http://RELEASE-NAME-bosun-stern:3000
 
 ---
 suite: disable dependencies
