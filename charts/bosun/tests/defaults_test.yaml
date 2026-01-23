@@ -463,6 +463,14 @@ tests:
       - equal:
           path: data.EXTRA_SETTING
           value: enabled
+  - it: defaults quak executor namespace to release namespace
+    template: quak/configmap.yaml
+    release:
+      namespace: demo
+    asserts:
+      - equal:
+          path: data.K8S_EXECUTOR_NAMESPACE
+          value: demo
 
 ---
 suite: image tag override

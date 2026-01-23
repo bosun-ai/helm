@@ -1,0 +1,55 @@
+suite: quak rbac rules
+templates:
+  - quak/rbac.yaml
+tests:
+  - it: includes required rules for quak service account
+    asserts:
+      - isKind:
+          of: Role
+        documentIndex: 1
+      - contains:
+          path: rules
+          content:
+            apiGroups:
+              - ""
+            resources:
+              - pods
+              - services
+            verbs:
+              - create
+              - get
+              - watch
+              - list
+              - delete
+              - patch
+        documentIndex: 1
+      - contains:
+          path: rules
+          content:
+            apiGroups:
+              - networking.k8s.io
+            resources:
+              - networkpolicies
+            verbs:
+              - create
+              - get
+              - watch
+              - list
+              - delete
+              - patch
+        documentIndex: 1
+      - contains:
+          path: rules
+          content:
+            apiGroups:
+              - apps
+            resources:
+              - statefulsets
+            verbs:
+              - create
+              - get
+              - watch
+              - list
+              - delete
+              - patch
+        documentIndex: 1

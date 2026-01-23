@@ -227,6 +227,17 @@ stern:
 
 The billing worker still deploys by default; override via `stern.billingWorker.enabled`.
 
+## Quak executor namespace
+
+By default, the k8s executor creates resources in the Helm release namespace. You
+can override this by setting `quak.env.K8S_EXECUTOR_NAMESPACE`.
+
+```
+quak:
+  env:
+    K8S_EXECUTOR_NAMESPACE: tasks
+```
+
 ## Stern host authorization (Rails)
 
 Rails host authorization defaults to `stern` and `*.bosun.ai`. To allow other

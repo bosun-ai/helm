@@ -23,6 +23,7 @@ data:
 {{- $executorResources := get $executor "resources" | default dict }}
 {{- $executorResourceLimits := get $executorResources "limits" | default dict }}
 {{- $executorResourceRequests := get $executorResources "requests" | default dict }}
+{{- $executorNamespace := default (include "bosun.namespace" .) .Values.quak.executorNamespace.name }}
 {{- $redisShared := include "bosun.componentFullname" (dict "root" . "component" "redis-shared") }}
 {{- $redisIndexing := include "bosun.componentFullname" (dict "root" . "component" "redis-indexing") }}
 {{- $qdrantService := include "bosun.componentFullname" (dict "root" . "component" "qdrant") }}
@@ -34,6 +35,9 @@ data:
 {{- $executorTolerations := get $userEnv "K8S_EXECUTOR_TOLERATIONS" }}
 {{- if or $executorTolerations .Values.global.tolerations }}
 {{- $_ := set $env "K8S_EXECUTOR_TOLERATIONS" (default (toJson .Values.global.tolerations) $executorTolerations) }}
+{{- end }}
+{{- if not (get $userEnv "K8S_EXECUTOR_NAMESPACE") }}
+{{- $_ := set $env "K8S_EXECUTOR_NAMESPACE" $executorNamespace }}
 {{- end }}
 {{- if not (get $userEnv "K8S_EXECUTOR_PERSISTENCE_ENABLED") }}
 {{- $_ := set $env "K8S_EXECUTOR_PERSISTENCE_ENABLED" (ternary "true" "false" $executorPersistenceEnabled) }}
