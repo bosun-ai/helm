@@ -239,6 +239,19 @@ quak:
     K8S_EXECUTOR_NAMESPACE: tasks
 ```
 
+## Quak executor image
+
+Override the executor image by setting `quak.executor.image` (or directly via
+`quak.env.EXECUTOR_IMAGE`).
+
+```
+quak:
+  executor:
+    image:
+      repository: ghcr.io/example/executor
+      tag: 1.2.3
+```
+
 Tasks-only scheduling is disabled by default. To enable it, set
 `quak.executor.tasksOnly: true` or override via `quak.env.K8S_EXECUTOR_TASKS_ONLY`.
 

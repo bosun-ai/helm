@@ -21,6 +21,9 @@ data:
 {{- $executorPersistence := get $executor "persistence" | default dict }}
 {{- $executorPersistenceEnabled := ternary (get $executorPersistence "enabled") true (hasKey $executorPersistence "enabled") }}
 {{- $executorTasksOnlyEnabled := ternary (get $executor "tasksOnly") false (hasKey $executor "tasksOnly") }}
+{{- $executorImage := get $executor "image" | default dict }}
+{{- $executorImageRepo := get $executorImage "repository" }}
+{{- $executorImageTag := get $executorImage "tag" }}
 {{- $executorResources := get $executor "resources" | default dict }}
 {{- $executorResourceLimits := get $executorResources "limits" | default dict }}
 {{- $executorResourceRequests := get $executorResources "requests" | default dict }}
@@ -39,6 +42,13 @@ data:
 {{- end }}
 {{- if not (get $userEnv "K8S_EXECUTOR_NAMESPACE") }}
 {{- $_ := set $env "K8S_EXECUTOR_NAMESPACE" $executorNamespace }}
+{{- end }}
+{{- if and (not (get $userEnv "EXECUTOR_IMAGE")) (or $executorImageRepo $executorImageTag) }}
+{{- if and $executorImageRepo $executorImageTag }}
+{{- $_ := set $env "EXECUTOR_IMAGE" (printf "%s:%s" $executorImageRepo $executorImageTag) }}
+{{- else if $executorImageRepo }}
+{{- $_ := set $env "EXECUTOR_IMAGE" $executorImageRepo }}
+{{- end }}
 {{- end }}
 {{- if not (get $userEnv "K8S_EXECUTOR_TASKS_ONLY") }}
 {{- $_ := set $env "K8S_EXECUTOR_TASKS_ONLY" (ternary "true" "false" $executorTasksOnlyEnabled) }}

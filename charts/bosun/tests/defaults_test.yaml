@@ -488,6 +488,15 @@ tests:
       - equal:
           path: data.EXTRA_SETTING
           value: enabled
+  - it: sets executor image from values
+    template: quak/configmap.yaml
+    set:
+      quak.executor.image.repository: ghcr.io/example/executor
+      quak.executor.image.tag: 1.2.3
+    asserts:
+      - equal:
+          path: data.EXECUTOR_IMAGE
+          value: ghcr.io/example/executor:1.2.3
   - it: defaults quak tasks-only scheduling to disabled
     template: quak/configmap.yaml
     asserts:
@@ -685,6 +694,9 @@ tests:
       - equal:
           path: data.STERN_BASE_URL
           value: http://RELEASE-NAME-bosun-stern:3000
+      - equal:
+          path: data.EXECUTOR_IMAGE
+          value: bosunai/swiftide-docker-universal:latest
 
 ---
 suite: disable dependencies

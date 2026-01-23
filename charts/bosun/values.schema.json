@@ -292,6 +292,14 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
+            "image": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "repository": { "type": "string" },
+                "tag": { "type": "string" }
+              }
+            },
             "tasksOnly": { "type": "boolean" },
             "persistence": {
               "type": "object",

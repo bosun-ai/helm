@@ -260,6 +260,9 @@ quak:
     name: ""
     create: false
   executor:
+    image:
+      repository: bosunai/swiftide-docker-universal
+      tag: latest
     tasksOnly: false
     persistence:
       enabled: true
