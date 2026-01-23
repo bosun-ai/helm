@@ -454,7 +454,7 @@ tests:
     asserts:
       - equal:
           path: data.STERN_ALLOWED_HOSTS
-          value: api.example.com,app.example.com
+          value: RELEASE-NAME-bosun-stern:3000,RELEASE-NAME-bosun-quak:3001,api.example.com,app.example.com
   - it: renders quak env overrides
     template: quak/configmap.yaml
     set:
