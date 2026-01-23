@@ -242,7 +242,7 @@ quak:
 ## Stern host authorization (Rails)
 
 Rails host authorization defaults to `stern` and `*.bosun.ai`. To allow other
-hosts, provide a comma-separated list via Helm:
+hosts (including CIDR ranges), provide a comma-separated list via Helm:
 
 ```
 stern:
@@ -251,6 +251,7 @@ stern:
       - api.bosun.example.com
       - app.bosun.example.com
       - stern
+      - 10.0.0.0/8
 ```
 
 ## Testing
