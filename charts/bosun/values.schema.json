@@ -292,6 +292,7 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
+            "tasksOnly": { "type": "boolean" },
             "persistence": {
               "type": "object",
               "additionalProperties": false,

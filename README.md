@@ -239,6 +239,9 @@ quak:
     K8S_EXECUTOR_NAMESPACE: tasks
 ```
 
+Tasks-only scheduling is disabled by default. To enable it, set
+`quak.executor.tasksOnly: true` or override via `quak.env.K8S_EXECUTOR_TASKS_ONLY`.
+
 ## Stern host authorization (Rails)
 
 Rails host authorization defaults to `stern` and `*.bosun.ai`. To allow other

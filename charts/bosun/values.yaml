@@ -260,6 +260,7 @@ quak:
     name: ""
     create: false
   executor:
+    tasksOnly: false
     persistence:
       enabled: true
       storageClass: bosun-executor-encrypted
