@@ -337,6 +337,31 @@ tests:
           path: metadata.namespace
           value: demo
         documentIndex: 3
+  - it: uses env executor namespace for rbac
+    release:
+      namespace: demo
+    set:
+      quak.env.K8S_EXECUTOR_NAMESPACE: apps
+      quak.executorNamespace.create: true
+    asserts:
+      - hasDocuments:
+          count: 4
+      - equal:
+          path: metadata.name
+          value: apps
+        documentIndex: 0
+      - equal:
+          path: metadata.namespace
+          value: demo
+        documentIndex: 1
+      - equal:
+          path: metadata.namespace
+          value: apps
+        documentIndex: 2
+      - equal:
+          path: metadata.namespace
+          value: apps
+        documentIndex: 3
 
   - it: uses explicit executor namespace when provided
     release:

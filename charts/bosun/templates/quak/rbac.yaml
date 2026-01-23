@@ -1,6 +1,10 @@
 {{- if .Values.quak.rbac.enabled }}
 {{- $saName := include "bosun.quak.serviceAccountName" . }}
 {{- $executorNamespace := default (include "bosun.namespace" .) .Values.quak.executorNamespace.name }}
+{{- $envExecutorNamespace := get .Values.quak.env "K8S_EXECUTOR_NAMESPACE" | default "" }}
+{{- if $envExecutorNamespace }}
+{{- $executorNamespace = $envExecutorNamespace }}
+{{- end }}
 {{- if .Values.quak.executorNamespace.create }}
 apiVersion: v1
 kind: Namespace

@@ -230,7 +230,8 @@ The billing worker still deploys by default; override via `stern.billingWorker.e
 ## Quak executor namespace
 
 By default, the k8s executor creates resources in the Helm release namespace. You
-can override this by setting `quak.env.K8S_EXECUTOR_NAMESPACE`.
+can override this by setting `quak.env.K8S_EXECUTOR_NAMESPACE` (RBAC will follow
+the same namespace).
 
 ```
 quak:
