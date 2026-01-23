@@ -1,4 +1,17 @@
-## [0.6.0] - 2026-01-23
+## [0.7.0] - 2026-01-23
+
+### 🚀 Features
+
+- Optionally override executor image
+
+### 🐛 Bug Fixes
+
+- Disable tasks-only node selection by default
+
+### 📚 Documentation
+
+- Explain cidr support
+## [bosun-0.6.0] - 2026-01-23
 
 ### 🚀 Features
 
@@ -8,6 +21,10 @@
 
 - Executor uses the release namespace by default
 - RBAC follows the executor namespace if overridden
+
+### ⚙️ Miscellaneous Tasks
+
+- Release 0.6.0 (#10)
 ## [bosun-0.5.1] - 2026-01-23
 
 ### ⚙️ Miscellaneous Tasks
