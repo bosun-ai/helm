@@ -1,8 +1,19 @@
-## [0.5.1] - 2026-01-23
+## [0.6.0] - 2026-01-23
+
+### 🚀 Features
+
+- Ensure stern / quak are always in allowed hosts
+
+### 🐛 Bug Fixes
+
+- Executor uses the release namespace by default
+- RBAC follows the executor namespace if overridden
+## [bosun-0.5.1] - 2026-01-23
 
 ### ⚙️ Miscellaneous Tasks
 
 - Bump appVersion
+- Release 0.5.1 (#9)
 ## [bosun-0.5.0] - 2026-01-22
 
 ### 🚀 Features
