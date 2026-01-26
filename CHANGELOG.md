@@ -1,4 +1,9 @@
-## [0.7.0] - 2026-01-23
+## [0.7.1] - 2026-01-26
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump appVersion
+## [bosun-0.7.0] - 2026-01-23
 
 ### 🚀 Features
 
@@ -11,6 +16,10 @@
 ### 📚 Documentation
 
 - Explain cidr support
+
+### ⚙️ Miscellaneous Tasks
+
+- Release 0.7.0 (#11)
 ## [bosun-0.6.0] - 2026-01-23
 
 ### 🚀 Features
