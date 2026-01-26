@@ -1,8 +1,14 @@
-## [0.7.1] - 2026-01-26
+## [0.7.2] - 2026-01-26
 
 ### ⚙️ Miscellaneous Tasks
 
 - Bump appVersion
+## [bosun-0.7.1] - 2026-01-26
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump appVersion
+- Release 0.7.1 (#12)
 ## [bosun-0.7.0] - 2026-01-23
 
 ### 🚀 Features
