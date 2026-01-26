@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   bosun:
   - apiVersion: v2
+    appVersion: 0.77.1
+    created: "2026-01-26T14:44:15.531314167Z"
+    description: Enterprise on-prem Helm chart for Bosun (Fluyt)
+    digest: 50d3ca6df0f36fcdd585f9e7badde19a5b61f8c9e68fa458351f0f8f347e05cb
+    name: bosun
+    type: application
+    urls:
+    - https://github.com/bosun-ai/helm/releases/download/bosun-0.7.2/bosun-0.7.2.tgz
+    version: 0.7.2
+  - apiVersion: v2
     appVersion: 0.77.0
     created: "2026-01-26T13:35:32.609568772Z"
     description: Enterprise on-prem Helm chart for Bosun (Fluyt)
@@ -91,4 +101,4 @@ entries:
     urls:
     - https://github.com/bosun-ai/helm/releases/download/bosun-v0.1.2/bosun-v0.1.2.tgz
     version: v0.1.2
-generated: "2026-01-26T13:35:32.609619876Z"
+generated: "2026-01-26T14:44:15.531355694Z"
