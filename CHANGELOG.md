@@ -1,8 +1,14 @@
-## [0.7.2] - 2026-01-26
+## [0.8.0] - 2026-01-26
+
+### 🚀 Features
+
+- Opt-out auto generate AR encryption secrets once
+## [bosun-0.7.2] - 2026-01-26
 
 ### ⚙️ Miscellaneous Tasks
 
 - Bump appVersion
+- Release 0.7.2 (#13)
 ## [bosun-0.7.1] - 2026-01-26
 
 ### ⚙️ Miscellaneous Tasks
