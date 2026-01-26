@@ -29,6 +29,10 @@ internalApiToken:
   create: true
   secretName: fluyt-internal-api-secrets
 
+activeRecordEncryption:
+  create: true
+  secretName: fluyt-stern-ar-encryption-secrets
+
 bow:
   enabled: true
   replicas: 2
@@ -105,6 +109,7 @@ stern:
       - github-secrets
       - fluyt-envelope-encr-secrets
       - fluyt-internal-api-secrets
+      - fluyt-stern-ar-encryption-secrets
   database:
     url: ""
     existingSecret: ""

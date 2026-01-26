@@ -65,12 +65,27 @@ Stern (Rails app):
 - `SECRET_KEY_BASE`: Rails secret key base.
 - `DATABASE_URL`: only if using external Postgres and `stern.database.*` is not set.
 - `REDIS_URL`: only if using external Redis.
+Active Record encryption keys are required for encrypted columns. By default the chart
+generates (and reuses on upgrades) `fluyt-stern-ar-encryption-secrets` with:
+- `ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY`
+- `ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY`
+- `ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT`
+To manage these yourself, set `activeRecordEncryption.create=false` and create the secret.
 
 ```
 kubectl -n bosun create secret generic stern-secrets \
   --from-literal=SECRET_KEY_BASE=... \
   --from-literal=DATABASE_URL=... \
   --from-literal=REDIS_URL=...
+```
+
+If bringing your own Active Record encryption keys:
+
+```
+kubectl -n bosun create secret generic fluyt-stern-ar-encryption-secrets \
+  --from-literal=ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY=... \
+  --from-literal=ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY=... \
+  --from-literal=ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT=...
 ```
 
 Quak (worker/API):

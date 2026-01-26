@@ -1,0 +1,22 @@
+suite: active record encryption secret
+templates:
+  - active-record-encryption-secret.yaml
+  - stern/deployment.yaml
+  - stern/configmap.yaml
+tests:
+  - it: renders active record encryption secret
+    template: active-record-encryption-secret.yaml
+    asserts:
+      - isKind:
+          of: Secret
+      - equal:
+          path: metadata.name
+          value: fluyt-stern-ar-encryption-secrets
+  - it: injects active record encryption secret into stern envFrom
+    template: stern/deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: fluyt-stern-ar-encryption-secrets
