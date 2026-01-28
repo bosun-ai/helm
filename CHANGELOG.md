@@ -1,8 +1,17 @@
-## [0.8.0] - 2026-01-26
+## [0.8.1] - 2026-01-28
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump chart version
+## [bosun-0.8.0] - 2026-01-26
 
 ### 🚀 Features
 
 - Opt-out auto generate AR encryption secrets once
+
+### ⚙️ Miscellaneous Tasks
+
+- Release 0.8.0 (#14)
 ## [bosun-0.7.2] - 2026-01-26
 
 ### ⚙️ Miscellaneous Tasks
