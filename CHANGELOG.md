@@ -1,8 +1,14 @@
-## [0.8.3] - 2026-02-02
+## [0.9.0] - 2026-03-26
+
+### 🚀 Features
+
+- Support extra Quak volumes and configurable Postgres PGDATA (#18)
+## [bosun-0.8.3] - 2026-02-02
 
 ### ⚙️ Miscellaneous Tasks
 
 - Bump appVersion
+- Release 0.8.3 (#17)
 ## [bosun-0.8.2] - 2026-01-30
 
 ### ⚙️ Miscellaneous Tasks
