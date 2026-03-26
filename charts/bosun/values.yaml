@@ -309,6 +309,8 @@ quak:
   tolerations: []
   affinity: {}
   podAnnotations: {}
+  extraVolumes: []
+  extraVolumeMounts: []
 
 prepull:
   enabled: false
@@ -383,6 +385,7 @@ postgres:
     repository: postgres
     tag: 15-alpine
     pullPolicy: IfNotPresent
+  pgdata: /var/lib/postgresql/data/pgdata
   auth:
     username: bosun
     password: bosun

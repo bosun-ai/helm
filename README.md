@@ -107,8 +107,8 @@ GitHub mode secrets (GitHub App + OAuth):
 - `GITHUB_APP_NAME`
 - `GITHUB_APP_ID`
 - `GITHUB_APP_KEY`
-- `GITHUB_APP_CLIENT_ID`
-- `GITHUB_APP_CLIENT_SECRET`
+- `GITHUB_CLIENT_ID`
+- `GITHUB_CLIENT_SECRET`
 - `GITHUB_REDIRECT_URI`
 
 ```
@@ -116,8 +116,8 @@ kubectl -n bosun create secret generic github-secrets \
   --from-literal=GITHUB_APP_NAME=... \
   --from-literal=GITHUB_APP_ID=... \
   --from-literal=GITHUB_APP_KEY=... \
-  --from-literal=GITHUB_APP_CLIENT_ID=... \
-  --from-literal=GITHUB_APP_CLIENT_SECRET=... \
+  --from-literal=GITHUB_CLIENT_ID=... \
+  --from-literal=GITHUB_CLIENT_SECRET=... \
   --from-literal=GITHUB_REDIRECT_URI=...
 ```
 
