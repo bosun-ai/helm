@@ -71,6 +71,28 @@ data:
 {{- $_ := set $env "K8S_EXECUTOR_VOLUME_SIZE_GIB" (printf "%v" $volumeSizeGi) }}
 {{- end }}
 {{- end }}
+{{- $executorCpuRequest := coalesce (get $executorResourceRequests "cpu") (get $executorResourceLimits "cpu") }}
+{{- if and $executorCpuRequest (not (get $userEnv "K8S_EXECUTOR_CPU_REQUEST_MILLIS")) }}
+{{- $executorCpuRequestRaw := printf "%v" $executorCpuRequest }}
+{{- $cpuRequestMillis := $executorCpuRequestRaw }}
+{{- if hasSuffix "m" $executorCpuRequestRaw }}
+{{- $cpuRequestMillis = trimSuffix "m" $executorCpuRequestRaw }}
+{{- else }}
+{{- $cpuRequestMillis = mul (int $executorCpuRequestRaw) 1000 | int }}
+{{- end }}
+{{- $_ := set $env "K8S_EXECUTOR_CPU_REQUEST_MILLIS" (printf "%v" $cpuRequestMillis) }}
+{{- end }}
+{{- $executorCpuLimit := coalesce (get $executorResourceLimits "cpu") (get $executorResourceRequests "cpu") }}
+{{- if and $executorCpuLimit (not (get $userEnv "K8S_EXECUTOR_CPU_LIMIT_MILLIS")) }}
+{{- $executorCpuLimitRaw := printf "%v" $executorCpuLimit }}
+{{- $cpuLimitMillis := $executorCpuLimitRaw }}
+{{- if hasSuffix "m" $executorCpuLimitRaw }}
+{{- $cpuLimitMillis = trimSuffix "m" $executorCpuLimitRaw }}
+{{- else }}
+{{- $cpuLimitMillis = mul (int $executorCpuLimitRaw) 1000 | int }}
+{{- end }}
+{{- $_ := set $env "K8S_EXECUTOR_CPU_LIMIT_MILLIS" (printf "%v" $cpuLimitMillis) }}
+{{- end }}
 {{- $executorCpu := coalesce (get $executorResourceLimits "cpu") (get $executorResourceRequests "cpu") }}
 {{- if and $executorCpu (not (get $userEnv "K8S_EXECUTOR_CPU_MILLIS")) }}
 {{- $executorCpuRaw := printf "%v" $executorCpu }}
@@ -81,6 +103,28 @@ data:
 {{- $cpuMillis = mul (int $executorCpuRaw) 1000 | int }}
 {{- end }}
 {{- $_ := set $env "K8S_EXECUTOR_CPU_MILLIS" (printf "%v" $cpuMillis) }}
+{{- end }}
+{{- $executorMemoryRequest := coalesce (get $executorResourceRequests "memory") (get $executorResourceLimits "memory") }}
+{{- if and $executorMemoryRequest (not (get $userEnv "K8S_EXECUTOR_MEMORY_REQUEST_MB")) }}
+{{- $executorMemoryRequestRaw := printf "%v" $executorMemoryRequest }}
+{{- $memoryRequestMi := $executorMemoryRequestRaw }}
+{{- if hasSuffix "Mi" $executorMemoryRequestRaw }}
+{{- $memoryRequestMi = trimSuffix "Mi" $executorMemoryRequestRaw }}
+{{- else if hasSuffix "Gi" $executorMemoryRequestRaw }}
+{{- $memoryRequestMi = mul (int (trimSuffix "Gi" $executorMemoryRequestRaw)) 1024 | int }}
+{{- end }}
+{{- $_ := set $env "K8S_EXECUTOR_MEMORY_REQUEST_MB" (printf "%v" $memoryRequestMi) }}
+{{- end }}
+{{- $executorMemoryLimit := coalesce (get $executorResourceLimits "memory") (get $executorResourceRequests "memory") }}
+{{- if and $executorMemoryLimit (not (get $userEnv "K8S_EXECUTOR_MEMORY_LIMIT_MB")) }}
+{{- $executorMemoryLimitRaw := printf "%v" $executorMemoryLimit }}
+{{- $memoryLimitMi := $executorMemoryLimitRaw }}
+{{- if hasSuffix "Mi" $executorMemoryLimitRaw }}
+{{- $memoryLimitMi = trimSuffix "Mi" $executorMemoryLimitRaw }}
+{{- else if hasSuffix "Gi" $executorMemoryLimitRaw }}
+{{- $memoryLimitMi = mul (int (trimSuffix "Gi" $executorMemoryLimitRaw)) 1024 | int }}
+{{- end }}
+{{- $_ := set $env "K8S_EXECUTOR_MEMORY_LIMIT_MB" (printf "%v" $memoryLimitMi) }}
 {{- end }}
 {{- $executorMemory := coalesce (get $executorResourceLimits "memory") (get $executorResourceRequests "memory") }}
 {{- if and $executorMemory (not (get $userEnv "K8S_EXECUTOR_MEMORY_MB")) }}
